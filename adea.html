@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دعاء استفتاح القرآن الكريم ودعاء ختمه</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        
+        :root {
+            --primary-color: #2c786c;
+            --secondary-color: #004445;
+            --accent-color: #f8b400;
+            --light-color: #faf5e4;
+            --dark-color: #1a1a1a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.8;
+            touch-action: pan-y;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .tab-btn {
+            padding: 12px 25px;
+            background-color: white;
+            border: none;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px 5px 0 0;
+            margin: 0 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-5px);
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .dua-text {
+            font-size: 1.3rem;
+            line-height: 2.2;
+            text-align: justify;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+        
+        .dua-reference {
+            font-style: italic;
+            text-align: left;
+            color: #666;
+            margin-top: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+        
+        .btn i {
+            margin-left: 8px;
+        }
+        
+        .audio-player {
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .theme-switcher {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: var(--accent-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: var(--accent-color);
+            color: var(--dark-color);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            transform: scale(1.1);
+            background-color: #ffc107;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: var(--dark-color);
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .tab-content {
+            background-color: #333;
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .dua-text {
+            color: #c9d1d9;
+        }
+        
+        body.dark-mode .tab-btn {
+            background-color: #444;
+            color: #f0f0f0;
+        }
+        
+        body.dark-mode .tab-btn.active {
+            background-color: var(--primary-color);
+        }
+        
+        body.dark-mode .dua-reference {
+            color: #aaa;
+        }
+        
+        body.dark-mode .back-btn {
+            color: #333;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .dua-text {
+                font-size: 1.1rem;
+                line-height: 2;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                margin: 5px 0;
+                border-radius: 5px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                margin: 5px 0;
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+  <div class="dua-container">
+    <header class="dua-header">
+      <button class="back-btn" id="back-btn">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <h1>دعاء استفتاح القرآن الكريم ودعاء ختمه</h1>
+      <p class="subtitle">من الأدعية المأثورة عند تلاوة القرآن</p>
+    </header>
+    
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="opening">دعاء الاستفتاح</button>
+      <button class="tab-btn" data-tab="closing">دعاء الختم</button>
+    </div>
+    
+    <div class="tab-content active" id="opening-tab">
+      <div class="dua-text">
+        اللَّهُمَّ بَارِكْ لِي فِي الْقُرْآنِ الْعَظِيمِ، وَانْفَعْنِي بِمَا فِيهِ مِنَ الْآيَاتِ وَالذِّكْرِ الْحَكِيمِ، وَاجْعَلْهُ لِي نُورًا وَهُدًى وَرَحْمَةً، اللَّهُمَّ ذَكِّرْنِي مِنْهُ مَا نَسِيتُ، وَعَلِّمْنِي مِنْهُ مَا جَهِلْتُ، وَارْزُقْنِي تِلَاوَتَهُ آنَاءَ اللَّيْلِ وَأَطْرَافَ النَّهَارِ، وَاجْعَلْهُ لِي حُجَّةً يَا رَبَّ الْعَالَمِينَ.
+        <br><br>
+        اللَّهُمَّ افْتَحْ عَلَيَّ فَتَحَ الْعَارِفِينَ، وَعَلِّمْنِي مَا جَهِلْتُ، وَذَكِّرْنِي مَا نَسِيتُ، وَارْزُقْنِي الْعِلْمَ الَّذِي يَنْفَعُنِي، وَانْفَعْنِي بِمَا عَلَّمْتَنِي، وَزِدْنِي عِلْمًا، وَأَلْبِسْنِي الْحِلْمَ، وَأَكْرِمْنِي بِالتَّقْوَى، وَزَيِّنِّي بِالْعَفَافِ.
+      </div>
+      <p class="dua-reference">(من الأدعية المأثورة عند بدء تلاوة القرآن الكريم)</p>
+      <audio controls class="audio-player" id="opening-audio">
+        <source src="https://example.com/opening-dua.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      <div class="controls">
+        <button class="btn" id="copy-opening">
+          <i class="fas fa-copy"></i> نسخ الدعاء
+        </button>
+        <button class="btn" id="share-opening">
+          <i class="fas fa-share-alt"></i> مشاركة
+        </button>
+      </div>
+    </div>
+    
+    <div class="tab-content" id="closing-tab">
+      <div class="dua-text">
+        اللَّهُمَّ ارْحَمْنِي بِالْقُرْآنِ وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً، اللَّهُمَّ ذَكِّرْنِي مِنْهُ مَا نَسِيتُ وَعَلِّمْنِي مِنْهُ مَا جَهِلْتُ، وَارْزُقْنِي تِلَاوَتَهُ آنَاءَ اللَّيْلِ وَأَطْرَافَ النَّهَارِ، وَاجْعَلْهُ لِي حُجَّةً يَا رَبَّ الْعَالَمِينَ.
+        <br><br>
+        اللَّهُمَّ أَصْلِحْ لِي دِينِيَ الَّذِي هُوَ عِصْمَةُ أَمْرِي، وَأَصْلِحْ لِي دُنْيَايَ الَّتِي فِيهَا مَعَاشِي، وَأَصْلِحْ لِي آخِرَتِي الَّتِي فِيهَا مَعَادِي، وَاجْعَلِ الْحَيَاةَ زِيَادَةً لِي فِي كُلِّ خَيْرٍ، وَاجْعَلِ الْمَوْتَ رَاحَةً لِي مِنْ كُلِّ شَرٍّ.
+        <br><br>
+        اللَّهُمَّ اجْعَلْ خَيْرَ عُمْرِي آخِرَهُ، وَخَيْرَ عَمَلِي خَوَاتِمَهُ، وَخَيْرَ أَيَّامِي يَوْمَ أَلْقَاكَ فِيهِ.
+      </div>
+      <p class="dua-reference">(من الأدعية المأثورة عند ختم القرآن الكريم)</p>
+      <audio controls class="audio-player" id="closing-audio">
+        <source src="https://example.com/closing-dua.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      <div class="controls">
+        <button class="btn" id="copy-closing">
+          <i class="fas fa-copy"></i> نسخ الدعاء
+        </button>
+        <button class="btn" id="share-closing">
+          <i class="fas fa-share-alt"></i> مشاركة
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="theme-switcher" id="theme-switcher">
+    <i class="fas fa-moon"></i>
+  </div>
+  
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // تطبيق السطوع المخزن
+    const savedBrightness = localStorage.getItem('brightness') || 100;
+    document.body.style.filter = `brightness(${savedBrightness}%)`;
+    console.log('Applied saved UI brightness:', savedBrightness);
+    if ('getScreenBrightness' in navigator && 'setScreenBrightness' in navigator) {
+      navigator.setScreenBrightness(savedBrightness / 200)
+        .then(() => console.log('Screen brightness restored to:', savedBrightness / 200))
+        .catch(error => console.error('Failed to restore screen brightness:', error));
+    }
+
+    // التبويبات
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        btn.classList.add('active');
+        const tabId = btn.getAttribute('data-tab');
+        document.getElementById(`${tabId}-tab`).classList.add('active');
+      });
+    });
+    
+    // نسخ الأدعية
+    document.getElementById('copy-opening').addEventListener('click', async () => {
+      const text = document.querySelector('#opening-tab .dua-text').innerText;
+      const attribution = '\n\nتم نسخ هذا الدعاء من خدمة وَإِنَّكَ لَتَهْدِي إِلَى صِرَاطٍ مُسْتَقِيمٍ\nالرابط: https://midoandbodyemish.github.io/khedma/';
+      try {
+        await navigator.clipboard.writeText(text + attribution);
+        alert('تم نسخ دعاء الاستفتاح بنجاح مع الإشارة للمصدر');
+      } catch (err) {
+        console.error('Failed to copy:', err);
+        alert('حدث خطأ أثناء النسخ، يرجى المحاولة مرة أخرى');
+      }
+    });
+    
+    document.getElementById('copy-closing').addEventListener('click', async () => {
+      const text = document.querySelector('#closing-tab .dua-text').innerText;
+      const attribution = '\n\nتم نسخ هذا الدعاء من خدمة وَإِنَّكَ لَتَهْدِي إِلَى صِرَاطٍ مُسْتَقِيمٍ\nالرابط: https://midoandbodyemish.github.io/khedma/';
+      try {
+        await navigator.clipboard.writeText(text + attribution);
+        alert('تم نسخ دعاء الختم بنجاح مع الإشارة للمصدر');
+      } catch (err) {
+        console.error('Failed to copy:', err);
+        alert('حدث خطأ أثناء النسخ، يرجى المحاولة مرة أخرى');
+      }
+    });
+    
+    // مشاركة الأدعية
+    document.getElementById('share-opening').addEventListener('click', () => {
+      if (navigator.share) {
+        navigator.share({
+          title: 'دعاء استفتاح القرآن الكريم',
+          text: 'هذا دعاء مأثور لاستفتاح تلاوة القرآن الكريم',
+          url: window.location.href
+        }).catch(err => {
+          console.log('Error sharing:', err);
+        });
+      } else {
+        alert('مشاركة النص غير متاحة في هذا المتصفح، يرجى استخدام النسخ');
+      }
+    });
+    
+    document.getElementById('share-closing').addEventListener('click', () => {
+      if (navigator.share) {
+        navigator.share({
+          title: 'دعاء ختم القرآن الكريم',
+          text: 'هذا دعاء مأثور عند ختم القرآن الكريم',
+          url: window.location.href
+        }).catch(err => {
+          console.log('Error sharing:', err);
+        });
+      } else {
+        alert('مشاركة النص غير متاحة في هذا المتصفح، يرجى استخدام النسخ');
+      }
+    });
+    
+    // الوضع الليلي
+    const themeSwitcher = document.getElementById('theme-switcher');
+    const body = document.body;
+    
+    themeSwitcher.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      if (body.classList.contains('dark-mode')) {
+        themeSwitcher.innerHTML = '<i class="fas fa-sun"></i>';
+        localStorage.setItem('theme', 'dark');
+      } else {
+        themeSwitcher.innerHTML = '<i class="fas fa-moon"></i>';
+        localStorage.setItem('theme', 'light');
+      }
+    });
+    
+    if (localStorage.getItem('theme') === 'dark') {
+      body.classList.add('dark-mode');
+      themeSwitcher.innerHTML = '<i class="fas fa-sun"></i>';
+    }
+    
+    // السحب يمينًا للعودة إلى الصفحة الأولى
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+    
+    document.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+    
+    function handleSwipe() {
+      const threshold = 50;
+      const swipeDistance = touchEndX - touchStartX;
+      if (swipeDistance > threshold) {
+        console.log('Swipe right detected, returning to page 1');
+        localStorage.setItem('lastPage', '1');
+        window.location.href = 'index.html';
+      }
+    }
+    
+    // زر العودة للرجوع إلى الصفحة الحالية
+    document.getElementById('back-btn').addEventListener('click', () => {
+      console.log('Back button clicked, returning to current page');
+      window.location.href = 'quran.html';
+    });
+  });
+</script>
+</body>
+</html>

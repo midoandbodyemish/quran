@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <link rel="manifest" href="manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تطبيق القرآن الكريم</title>
+  <link href="https://unpkg.com/webkul-micron@1.1.6/dist/css/micron.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/webkul-micron@1.1.6/dist/script/micron.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Amiri', serif;
+      direction: rtl;
+      text-align: center;
+      background: #f5f5f5;
+      color: #333;
+      overflow: hidden;
+      transition: background-color 0.3s ease;
+    }
+
+    #page-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: filter 0.3s ease; /* لتفعيل تأثير السطوع */
+    }
+
+    #page-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    #searsh, #bookmarks, #view-bookmarks, #manage-bookmarks, #index, #parts-index, #color-panel {
+      display: none;
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 350px;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(12px);
+      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+      overflow-y: auto;
+      padding: 20px;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #searsh.show, #bookmarks.show, #view-bookmarks.show, #manage-bookmarks.show, #index.show, #parts-index.show, #color-panel.show {
+      display: block;
+      transform: translateX(0);
+    }
+
+    #search-term, #bookmark-name {
+      width: 100%;
+      padding: 12px 20px;
+      border: 1px solid #ddd;
+      border-radius: 30px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      margin-top: 50px;
+      outline: none;
+      background: #f9f9f9;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    #search-term:focus, #bookmark-name:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.2);
+    }
+
+    #add-bookmark-btn, #new-bookmark-btn, #edit-bookmark-btn, #reorder-btn, #save-order-btn {
+      width: 100%;
+      padding: 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      margin-bottom: 15px;
+    }
+
+    #add-bookmark-btn:hover, #new-bookmark-btn:hover, #edit-bookmark-btn:hover, #reorder-btn:hover {
+      background: #388E3C;
+      transform: scale(1.05);
+    }
+
+    #save-order-btn {
+      background: #FF9800;
+    }
+
+    #save-order-btn:hover {
+      background: #F57C00;
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+    }
+
+    #bookmark-name, #add-bookmark-btn, #existing-bookmarks-list, #save-order-btn {
+      display: none;
+    }
+
+    #bookmark-options, #existing-bookmarks-list, #pinned-bookmarks-list, #unpinned-bookmarks-list, #index-list, #parts-index-list, #color-options {
+      margin-top: 20px;
+    }
+
+    #existing-bookmarks-list .bookmark-item {
+      cursor: pointer;
+    }
+
+    #close-search, #close-bookmarks, #close-view-bookmarks, #close-manage-bookmarks, #close-index, #close-parts-index, #close-color {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: #f44336;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      font-size: 24px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 151;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    #close-search.show, #close-bookmarks.show, #close-view-bookmarks.show, #close-manage-bookmarks.show, #close-index.show, #close-parts-index.show, #close-color.show {
+      display: flex;
+    }
+
+    #close-search:hover, #close-bookmarks:hover, #close-view-bookmarks:hover, #close-manage-bookmarks:hover, #close-index:hover, #close-parts-index:hover, #close-color:hover {
+      transform: scale(1.15);
+      background: #d32f2f;
+    }
+
+    #results-count, #bookmarks-count, #view-bookmarks-count, #manage-bookmarks-count, #index-count, #parts-index-count {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 20px;
+      text-align: right;
+      font-weight: 400;
+    }
+
+    #search-results, #bookmarks-list, #view-bookmarks-list, #index-list, #parts-index-list {
+      margin-top: 20px;
+    }
+
+    .search-result, .bookmark-item, .view-bookmark-item, .manage-bookmark-item, .index-item, .parts-index-item {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-align: right;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .search-result:hover, .bookmark-item:hover, .view-bookmark-item:hover, .manage-bookmark-item:hover, .index-item:hover, .parts-index-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .manage-bookmark-item.sortable-chosen {
+      background: #f0f0f0;
+      opacity: 0.8;
+      transform: scale(0.98);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .manage-bookmark-item.sortable-ghost {
+      border: 2px dashed #4CAF50;
+      background: #e8f5e9;
+      opacity: 0.5;
+    }
+
+    .surah-name, .bookmark-name, .view-bookmark-name, .index-surah-name, .parts-index-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #388E3C;
+      margin-bottom: 12px;
+    }
+
+    .parts-index-part-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #4CAF50;
+      margin: 20px 0 10px;
+      text-align: right;
+    }
+
+    .ayah-text, .bookmark-page, .view-bookmark-page {
+      font-size: 16px;
+      color: #333;
+      line-height: 1.8;
+    }
+
+    .parts-index-name .ayah-text {
+      font-size: 14px;
+      color: #555;
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .index-item img {
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      object-fit: cover;
+      display: block;
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .manage-bookmark-item button {
+      padding: 8px 12px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .manage-bookmark-item .rename-btn {
+      background: #2196F3;
+      color: white;
+    }
+
+    .manage-bookmark-item .rename-btn:hover {
+      background: #1976D2;
+    }
+
+    .manage-bookmark-item .delete-btn {
+      background: #f44336;
+      color: white;
+    }
+
+    .manage-bookmark-item .delete-btn:hover {
+      background: #d32f2f;
+    }
+
+    .manage-bookmark-item .pin-btn {
+      background: #FFC107;
+      color: white;
+    }
+
+    .manage-bookmark-item .pin-btn:hover {
+      background: #FFA000;
+    }
+
+    #floating-menu {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 150;
+    }
+
+    #menu-toggle-btn {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(45deg, #4CAF50, #66BB6A);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    #menu-toggle-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    #menu-icons {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 151;
+    }
+
+    #menu-icons button {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(45deg, #4CAF50, #66BB6A);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    #menu-icons #color-btn {
+      background: linear-gradient(45deg, #2196F3, #42A5F5);
+    }
+
+    #menu-icons #brightness-btn {
+      background: linear-gradient(45deg, #FFC107, #FFCA28);
+    }
+
+    #menu-icons button:hover {
+      transform: scale(1.15);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    #menu-icons button i {
+      font-size: 20px;
+    }
+
+    #brightness-control {
+      position: fixed;
+      top: 360px; /* يتم تعديله بناءً على عدد الأيقونات في #menu-icons */
+      right: 20px;
+      display: none;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 151;
+    }
+
+    #brightness-slider {
+      width: 100px;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      background: #ddd;
+      border-radius: 5px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    #brightness-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #4CAF50;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    #brightness-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #4CAF50;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    #color-options {
+      margin-top: 60px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      gap: 15px;
+    }
+
+    .color-option {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .color-option:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-color: #fff;
+    }
+
+    .color-option.selected {
+      border-color: #4CAF50;
+      box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    }
+
+    #color-picker {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      margin: 15px auto;
+      padding: 0;
+      background: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    #color-picker:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-color: #fff;
+    }
+
+    #color-picker::-webkit-color-swatch {
+      border-radius: 50%;
+      border: none;
+    }
+
+    #color-picker::-moz-color-swatch {
+      border-radius: 50%;
+      border: none;
+    }
+
+    .panel-open #floating-menu {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      #searsh, #bookmarks, #view-bookmarks, #manage-bookmarks, #index, #parts-index, #color-panel {
+        width: 100%;
+        padding: 15px;
+      }
+
+      #floating-menu {
+        top: 15px;
+        right: 15px;
+      }
+
+      #menu-toggle-btn {
+        width: 45px;
+        height: 45px;
+      }
+
+      #menu-icons {
+        top: 70px;
+        right: 15px;
+        gap: 8px;
+        padding: 8px;
+      }
+
+      #menu-icons button {
+        width: 35px;
+        height: 35px;
+      }
+
+      #menu-icons button i {
+        font-size: 18px;
+      }
+
+      #brightness-control {
+        top: 340px;
+        right: 15px;
+      }
+
+      #brightness-slider {
+        width: 80px;
+      }
+
+      #close-search, #close-bookmarks, #close-view-bookmarks, #close-manage-bookmarks, #close-index, #close-parts-index, #close-color {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+
+      .surah-name, .bookmark-name, .view-bookmark-name, .index-surah-name, .parts-index-name {
+        font-size: 16px;
+      }
+
+      .parts-index-part-title {
+        font-size: 18px;
+      }
+
+      .ayah-text, .bookmark-page, .view-bookmark-page {
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .parts-index-name .ayah-text {
+        font-size: 12px;
+      }
+
+      .index-item img {
+        max-width: 100px;
+      }
+
+      #results-count, #bookmarks-count, #view-bookmarks-count, #manage-bookmarks-count, #index-count, #parts-index-count {
+        font-size: 12px;
+      }
+
+      #search-term, #bookmark-name {
+        margin-top: 40px;
+        font-size: 14px;
+      }
+
+      #color-options {
+        grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+        gap: 10px;
+      }
+
+      .color-option {
+        width: 50px;
+        height: 50px;
+      }
+
+      #color-picker {
+        width: 50px;
+        height: 50px;
+        margin: 10px auto;
+      }
+    }
+
+    .parts-index-ayah {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 8px;
+      line-height: 1.6;
+      text-align: right;
+    }
+
+    .parts-index-info {
+      font-size: 16px;
+      color: #388E3C;
+      margin: 8px 0;
+      font-weight: 600;
+    }
+
+    .parts-index-page {
+      font-size: 14px;
+      color: #7f8c8d;
+      margin-top: 8px;
+    }
+
+    .parts-index-item {
+      padding: 15px;
+      margin: 15px 0;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid #e8e8e8;
+      transition: all 0.3s ease;
+      text-align: right;
+    }
+
+    .parts-index-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background: #f8f9fa;
+    }
+
+    .parts-index-hizb-title {
+      color: #ff1c1c;
+    }
+  </style>
+</head>
+<body>
+  <div id="searsh">
+    <button id="close-search">×</button>
+    <input type="search" id="search-term" placeholder="ابحث عن آية...">
+    <div id="results-count"></div>
+    <div id="search-results"></div>
+  </div>
+
+  <div id="bookmarks">
+    <button id="close-bookmarks">×</button>
+    <div id="bookmark-options">
+      <button id="new-bookmark-btn">حفظ علامة جديدة</button>
+      <button id="edit-bookmark-btn">تغيير علامة سابقة</button>
+    </div>
+    <input type="text" id="bookmark-name" placeholder="أدخل اسم العلامة...">
+    <button id="add-bookmark-btn">إضافة علامة</button>
+    <div id="existing-bookmarks-list"></div>
+    <div id="bookmarks-count"></div>
+    <div id="bookmarks-list"></div>
+  </div>
+
+  <div id="view-bookmarks">
+    <button id="close-view-bookmarks">×</button>
+    <div id="view-bookmarks-count"></div>
+    <div id="view-bookmarks-list"></div>
+  </div>
+
+  <div id="manage-bookmarks">
+    <button id="close-manage-bookmarks">×</button>
+    <div id="manage-bookmarks-count"></div>
+    <div id="pinned-bookmarks-list"></div>
+    <div id="unpinned-bookmarks-list"></div>
+    <button id="reorder-btn">تغيير الأماكن</button>
+    <button id="save-order-btn">تم</button>
+  </div>
+
+  <div id="index">
+    <button id="close-index">×</button>
+    <div id="index-count"></div>
+    <div id="index-list"></div>
+  </div>
+
+  <div id="parts-index">
+    <button id="close-parts-index">×</button>
+    <div id="parts-index-count"></div>
+    <div id="parts-index-list"></div>
+  </div>
+
+  <div id="color-panel">
+    <button id="close-color">×</button>
+    <div id="color-options"></div>
+    <input type="color" id="color-picker" title="اختر لونًا مخصصًا">
+  </div>
+
+  <div id="page-container">
+    <img id="page-image" alt="صفحة القرآن" loading="lazy">
+  </div>
+
+  <div id="floating-menu">
+    <button id="menu-toggle-btn" data-micron="squeeze"><i class="fas fa-bars"></i></button>
+    <div id="menu-icons" style="display: none;">
+      <button id="show" data-micron="squeeze"><i class="fas fa-magnifying-glass"></i></button>
+      <button id="bookmark" data-micron="squeeze"><i class="fas fa-bookmark"></i></button>
+      <button onclick="location.href='adea.html';"id="dua-btn" data-micron="squeeze"><i class="fas fa-pray"></i></button>
+      <button id="view-bookmarks-btn" data-micron="squeeze"><i class="fas fa-list"></i></button>
+      <button id="manage-bookmarks-btn" data-micron="squeeze"><i class="fas fa-gear"></i></button>
+      <button id="index-btn" data-micron="squeeze"><i class="fas fa-book-open"></i></button>
+      <button id="parts-index-btn" data-micron="squeeze"><i class="fas fa-th-list"></i></button>
+      <button id="color-btn" data-micron="squeeze"><i class="fas fa-palette"></i></button>
+      <button id="brightness-btn" data-micron="squeeze"><i class="fas fa-lightbulb"></i></button>
+      <button id="brightness-btn" data-micron="squeeze"><i class="fas fa-info" onclick="location.href='info.html';"></i></button>
+    </div>
+    <div id="brightness-control" style="display: none;">
+      <input type="range" id="brightness-slider" min="0" max="200" value="100">
+    </div>
+  </div>
+
+  <script>
+  // تسجيل Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').then(registration => {
+        console.log('Service Worker registered:', registration);
+      }).catch(error => {
+        console.error('Service Worker registration failed:', error);
+      });
+    });
+  }
+
+  // تحميل الصور مسبقًا
+  function preloadImages() {
+    for (let i = 1; i <= 604; i++) {
+      const img = new Image();
+      img.src = `/quran/${i}.png`;
+    }
+  }
+  window.addEventListener('load', preloadImages);
+
+  let currentPage = localStorage.getItem('lastPage') ? parseInt(localStorage.getItem('lastPage')) : 1;
+  const totalPages = 604;
+  let pinnedSortable = null;
+  let unpinnedSortable = null;
+  let isBrightnessControlVisible = false;
+
+  const quarterNames = ['الأول', 'الثاني', 'الثالث', 'الرابع'];
+
+  const colors = [
+    { name: 'أبيض', value: '#f5f5f5' },
+    { name: 'أسود', value: '#000' },
+    { name: 'سماوي', value: '#a3fffc' },
+    { name: 'أصفر', value: '#fffd8c' },
+    { name: 'وردي', value: '#ffc6a3' },
+    { name: 'أخضر فاتح', value: '#c1ffc6' },
+    { name: 'بنفسجي', value: '#e5c1ff' },
+    { name: 'وردي غامق', value: '#ff8aca' }
+  ];
+
+  function updatePage() {
+    const imgElement = document.getElementById('page-image');
+    imgElement.src = `quran/${currentPage}.png`;
+    localStorage.setItem('lastPage', currentPage);
+  }
+
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      updatePage();
+    }
+  }
+
+  function nextPage() {
+    if (currentPage < totalPages) {
+      currentPage++;
+      updatePage();
+    }
+  }
+
+  function removeTashkeel(text) {
+    return text.replace(/[\u064B-\u0652]/g, '');
+  }
+
+  function highlightText(text, searchTerm) {
+    return text;
+  }
+
+  function toggleFloatingButtons(show) {
+    const floatingMenu = document.getElementById('floating-menu');
+    if (floatingMenu) {
+      floatingMenu.style.display = show ? 'block' : 'none';
+    }
+    document.body.classList.toggle('panel-open', !show);
+  }
+
+  function showPanel(panelId, closeButtonId) {
+    const panel = document.getElementById(panelId);
+    const closeButton = document.getElementById(closeButtonId);
+    if (panel && closeButton) {
+      panel.classList.add('show');
+      closeButton.classList.add('show');
+      toggleFloatingButtons(false);
+      ['searsh', 'bookmarks', 'view-bookmarks', 'manage-bookmarks', 'index', 'parts-index', 'color-panel'].forEach(id => {
+        if (id !== panelId) {
+          const otherPanel = document.getElementById(id);
+          const otherClose = document.getElementById(`close-${id.split('-').join('-')}`);
+          if (otherPanel && otherClose) {
+            otherPanel.classList.remove('show');
+            otherClose.classList.remove('show');
+          }
+        }
+      });
+    }
+  }
+
+  function closePanel(panelId, closeButtonId) {
+    const panel = document.getElementById(panelId);
+    const closeButton = document.getElementById(closeButtonId);
+    if (panel && closeButton) {
+      panel.classList.remove('show');
+      closeButton.classList.remove('show');
+      toggleFloatingButtons(true);
+    }
+  }
+
+  // التحقق من الاتصال بالإنترنت
+  function isOnline() {
+    return navigator.onLine;
+  }
+
+  function showIndex() {
+    const indexList = document.getElementById('index-list');
+    const indexCount = document.getElementById('index-count');
+    if (indexList && indexCount) {
+      indexList.innerHTML = '';
+      indexCount.innerHTML = 'جارٍ التحميل...';
+
+      if (!isOnline()) {
+        indexList.innerHTML = '<div class="index-item"><p>يتطلب فهرس السور اتصالاً بالإنترنت.</p></div>';
+        indexCount.innerHTML = '';
+        return;
+      }
+
+      const cachedSurahs = localStorage.getItem('surahsData');
+      if (cachedSurahs) {
+        const surahs = JSON.parse(cachedSurahs);
+        indexCount.innerHTML = `عدد السور: ${surahs.length}`;
+        surahs.forEach(surah => {
+          const firstAyah = surah.ayahs[0];
+          const surahElement = document.createElement('div');
+          surahElement.className = 'index-item';
+          surahElement.innerHTML = `
+            <div class="index-surah-name">${surah.name}</div>
+          `;
+          surahElement.onclick = () => {
+            currentPage = firstAyah.page;
+            updatePage();
+            closePanel('index', 'close-index');
+          };
+          indexList.appendChild(surahElement);
+        });
+        return;
+      }
+
+      fetch("https://api.alquran.cloud/v1/quran/ar")
+        .then(res => {
+          if (!res.ok) throw new Error("فشل جلب بيانات السور");
+          return res.json();
+        })
+        .then(data => {
+          const surahs = data.data.surahs;
+          localStorage.setItem('surahsData', JSON.stringify(surahs));
+          indexCount.innerHTML = `عدد السور: ${surahs.length}`;
+          surahs.forEach(surah => {
+            const firstAyah = surah.ayahs[0];
+            const surahElement = document.createElement('div');
+            surahElement.className = 'index-item';
+            surahElement.innerHTML = `
+              <div class="index-surah-name">${surah.name}</div>
+            `;
+            surahElement.onclick = () => {
+              currentPage = firstAyah.page;
+              updatePage();
+              closePanel('index', 'close-index');
+            };
+            indexList.appendChild(surahElement);
+          });
+        })
+        .catch(error => {
+          console.error('خطأ في جلب بيانات السور:', error);
+          indexList.innerHTML = '<div class="index-item"><p>حدث خطأ أثناء تحميل الفهرس. حاول لاحقًا.</p></div>';
+          indexCount.innerHTML = '';
+        });
+    }
+  }
+
+  function showPartsIndex() {
+    const partsIndexList = document.getElementById('parts-index-list');
+    const partsIndexCount = document.getElementById('parts-index-count');
+    if (partsIndexList && partsIndexCount) {
+      partsIndexList.innerHTML = '';
+      partsIndexCount.innerHTML = 'جارٍ التحميل...';
+
+      if (!isOnline()) {
+        partsIndexList.innerHTML = '<div class="parts-index-item"><p>يتطلب فهرس الأجزاء اتصالاً بالإنترنت.</p></div>';
+        partsIndexCount.innerHTML = '';
+        return;
+      }
+
+      const cachedQuranData = localStorage.getItem('quranData');
+      if (cachedQuranData) {
+        const data = JSON.parse(cachedQuranData);
+        displayPartsIndex(data.data.surahs);
+        return;
+      }
+
+      fetch("https://api.alquran.cloud/v1/quran/ar")
+        .then(res => {
+          if (!res.ok) throw new Error("فشل جلب بيانات الأجزاء");
+          return res.json();
+        })
+        .then(data => {
+          localStorage.setItem('quranData', JSON.stringify(data));
+          displayPartsIndex(data.data.surahs);
+        })
+        .catch(error => {
+          console.error('خطأ في جلب بيانات الأجزاء:', error);
+          partsIndexList.innerHTML = '<div class="parts-index-item"><p>حدث خطأ أثناء تحميل الفهرس. حاول لاحقًا.</p></div>';
+          partsIndexCount.innerHTML = '';
+        });
+    }
+
+    function displayPartsIndex(surahs) {
+      const quarters = [];
+      surahs.forEach(surah => {
+        surah.ayahs.forEach(ayah => {
+          const quarterId = ayah.hizbQuarter;
+          if (!quarters.find(q => q.id === quarterId)) {
+            quarters.push({
+              id: quarterId,
+              juz: ayah.juz,
+              hizb: Math.ceil(quarterId / 4),
+              quarter: ((quarterId - 1) % 4) + 1,
+              page: ayah.page,
+              surahName: surah.name,
+              ayahText: ayah.text
+            });
+          }
+        });
+      });
+
+      const partsCount = new Set(quarters.map(q => q.juz)).size;
+      const hizbsCount = new Set(quarters.map(q => q.hizb)).size;
+      const quartersCount = quarters.length;
+
+      partsIndexCount.innerHTML = `عدد الأجزاء: ${partsCount} | عدد الأحزاب: ${hizbsCount} | عدد الأرباع: ${quartersCount}`;
+
+      const parts = Array.from({ length: 30 }, (_, i) => ({
+        part: i + 1,
+        quarters: quarters.filter(q => q.juz === i + 1)
+      })).filter(part => part.quarters.length > 0);
+
+      partsIndexList.innerHTML = '';
+
+      parts.forEach(part => {
+        const partTitle = document.createElement('div');
+        partTitle.className = 'parts-index-part-title';
+        partTitle.innerHTML = `الجزء ${part.part}`;
+        partsIndexList.appendChild(partTitle);
+
+        const quartersByHizb = {};
+        part.quarters.forEach(quarter => {
+          if (!quartersByHizb[quarter.hizb]) {
+            quartersByHizb[quarter.hizb] = [];
+          }
+          quartersByHizb[quarter.hizb].push(quarter);
+        });
+
+        Object.keys(quartersByHizb).sort((a, b) => a - b).forEach(hizb => {
+          const hizbTitle = document.createElement('div');
+          hizbTitle.className = 'parts-index-hizb-title';
+          hizbTitle.innerHTML = `الحزب ${hizb}`;
+          partsIndexList.appendChild(hizbTitle);
+
+          quartersByHizb[hizb].sort((a, b) => a.quarter - b.quarter).forEach(quarter => {
+            const quarterName = quarterNames[quarter.quarter - 1];
+            const quarterElement = document.createElement('div');
+            quarterElement.className = 'parts-index-item';
+            quarterElement.innerHTML = `
+              <div class="parts-index-ayah">${quarter.ayahText}</div>
+              <div class="parts-index-info">الربع ${quarterName} من الحزب ${quarter.hizb} في الجزء ${quarter.juz}</div>
+              <div class="parts-index-page">الصفحة ${quarter.page}</div>
+            `;
+            quarterElement.onclick = () => {
+              currentPage = quarter.page;
+              updatePage();
+              closePanel('parts-index', 'close-parts-index');
+            };
+            partsIndexList.appendChild(quarterElement);
+          });
+        });
+      });
+    }
+  }
+
+  function showColorPanel() {
+    const colorPanel = document.getElementById('color-panel');
+    const colorOptions = document.getElementById('color-options');
+    const closeColor = document.getElementById('close-color');
+    const colorPicker = document.getElementById('color-picker');
+    
+    if (colorPanel && colorOptions && closeColor && colorPicker) {
+      colorOptions.innerHTML = '';
+      
+      colors.forEach(color => {
+        const colorOption = document.createElement('div');
+        colorOption.className = 'color-option';
+        colorOption.style.backgroundColor = color.value;
+        colorOption.title = color.name;
+        colorOption.onclick = () => {
+          changecolor(color.value);
+          closePanel('color-panel', 'close-color');
+        };
+        if (color.value === localStorage.getItem('backgroundColor')) {
+          colorOption.classList.add('selected');
+        }
+        colorOptions.appendChild(colorOption);
+      });
+
+      colorPicker.addEventListener('input', () => {
+        const selectedColor = colorPicker.value;
+        changecolor(selectedColor);
+        closePanel('color-panel', 'close-color');
+      });
+
+      showPanel('color-panel', 'close-color');
+    }
+  }
+
+  function changecolor(colorValue) {
+    document.body.style.background = colorValue;
+    localStorage.setItem('backgroundColor', colorValue);
+    
+    const colorOptions = document.querySelectorAll('.color-option');
+    if (colorOptions) {
+      colorOptions.forEach(option => {
+        option.classList.toggle('selected', option.style.backgroundColor.toLowerCase() === colorValue.toLowerCase());
+      });
+    }
+
+    const colorPicker = document.getElementById('color-picker');
+    if (colorPicker) {
+      colorPicker.value = colorValue;
+    }
+  }
+
+  async function updateBrightness(value) {
+    const body = document.body;
+    const pageContainer = document.getElementById('page-container');
+    if (body && pageContainer) {
+      body.style.filter = `brightness(${value}%)`;
+      pageContainer.style.filter = `brightness(${value}%)`;
+      localStorage.setItem('brightness', value);
+    }
+  }
+
+  function searchAyah() {
+    const searchTermRaw = document.getElementById('search-term')?.value;
+    if (!searchTermRaw) return;
+
+    if (!isOnline()) {
+      const resultsContainer = document.getElementById('search-results');
+      const resultsCount = document.getElementById('results-count');
+      if (resultsContainer && resultsCount) {
+        resultsContainer.innerHTML = '<div class="search-result"><p class="ayah-text">يتطلب البحث اتصالاً بالإنترنت.</p></div>';
+        resultsCount.innerHTML = '';
+      }
+      return;
+    }
+
+    const searchTerm = removeTashkeel(searchTermRaw).trim();
+    const resultsContainer = document.getElementById('search-results');
+    const resultsCount = document.getElementById('results-count');
+    if (resultsContainer && resultsCount) {
+      resultsContainer.innerHTML = '';
+      resultsCount.innerHTML = '';
+
+      if (searchTerm.length < 2) {
+        console.log("النص المبحوث أقل من حرفين");
+        return;
+      }
+
+      fetch("https://api.alquran.cloud/v1/quran/ar")
+        .then(res => {
+          if (!res.ok) throw new Error("فشل جلب البيانات من الـ API");
+          return res.json();
+        })
+        .then(data => {
+          const ayahs = data.data.surahs.flatMap(surah =>
+            surah.ayahs.map(ayah => ({
+              text: ayah.text,
+              page: ayah.page,
+              surahName: surah.name,
+              ayahNumber: ayah.numberInSurah
+            }))
+          );
+
+          const filtered = ayahs.filter(ayah =>
+            removeTashkeel(ayah.text).includes(searchTerm)
+          );
+
+          resultsCount.innerHTML = `تم العثور على ${filtered.length} نتيجة`;
+
+          if (filtered.length === 0) {
+            resultsContainer.innerHTML = '<div class="search-result"><p class="ayah-text">لم يتم العثور على نتائج</p></div>';
+            return;
+          }
+
+          filtered.forEach(result => {
+            const resultElement = document.createElement('div');
+            resultElement.className = 'search-result';
+            const highlightedText = highlightText(result.text, searchTermRaw);
+            resultElement.innerHTML = `
+              <div class="surah-name">${result.surahName} - الآية ${result.ayahNumber}</div>
+              <div class="ayah-text">${highlightedText}</div>
+            `;
+            resultElement.onclick = () => {
+              currentPage = result.page;
+              updatePage();
+              closePanel('searsh', 'close-search');
+            };
+            resultsContainer.appendChild(resultElement);
+          });
+        })
+        .catch(error => {
+          console.error('خطأ في جلب بيانات القرآن:', error);
+          resultsContainer.innerHTML = '<div class="search-result"><p class="ayah-text">حدث خطأ أثناء البحث. حاول لاحقًا.</p></div>';
+          resultsCount.innerHTML = '';
+        });
+    }
+  }
+
+  function loadBookmarks() {
+    return JSON.parse(localStorage.getItem('bookmarks')) || [];
+  }
+
+  function saveBookmarks(bookmarks) {
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+  }
+
+  function addBookmark() {
+    const name = document.getElementById('bookmark-name')?.value.trim();
+    if (!name) {
+      alert('يرجى إدخال اسم للعلامة');
+      return;
+    }
+    const bookmarks = loadBookmarks();
+    bookmarks.push({ name, page: currentPage, pinned: false, timestamp: Date.now(), order: bookmarks.length });
+    saveBookmarks(bookmarks);
+    const bookmarkNameInput = document.getElementById('bookmark-name');
+    if (bookmarkNameInput) {
+      bookmarkNameInput.value = '';
+    }
+    closePanel('bookmarks', 'close-bookmarks');
+  }
+
+  function showBookmarkOptions() {
+    const bookmarkOptions = document.getElementById('bookmark-options');
+    const bookmarkNameInput = document.getElementById('bookmark-name');
+    const addBookmarkBtn = document.getElementById('add-bookmark-btn');
+    const existingBookmarksList = document.getElementById('existing-bookmarks-list');
+
+    if (bookmarkOptions && bookmarkNameInput && addBookmarkBtn && existingBookmarksList) {
+      bookmarkOptions.style.display = 'block';
+      bookmarkNameInput.style.display = 'none';
+      addBookmarkBtn.style.display = 'none';
+      existingBookmarksList.style.display = 'none';
+    }
+  }
+
+  function showNewBookmarkInput() {
+    const bookmarkOptions = document.getElementById('bookmark-options');
+    const bookmarkNameInput = document.getElementById('bookmark-name');
+    const addBookmarkBtn = document.getElementById('add-bookmark-btn');
+    const existingBookmarksList = document.getElementById('existing-bookmarks-list');
+
+    if (bookmarkOptions && bookmarkNameInput && addBookmarkBtn && existingBookmarksList) {
+      bookmarkOptions.style.display = 'none';
+      bookmarkNameInput.style.display = 'block';
+      addBookmarkBtn.style.display = 'block';
+      existingBookmarksList.style.display = 'none';
+    }
+  }
+
+  function showExistingBookmarks() {
+    const bookmarkOptions = document.getElementById('bookmark-options');
+    const bookmarkNameInput = document.getElementById('bookmark-name');
+    const addBookmarkBtn = document.getElementById('add-bookmark-btn');
+    const existingBookmarksList = document.getElementById('existing-bookmarks-list');
+    if (bookmarkOptions && bookmarkNameInput && addBookmarkBtn && existingBookmarksList) {
+      bookmarkOptions.style.display = 'none';
+      bookmarkNameInput.style.display = 'none';
+      addBookmarkBtn.style.display = 'none';
+      existingBookmarksList.style.display = 'block';
+
+      existingBookmarksList.innerHTML = '';
+      const bookmarks = loadBookmarks();
+      if (bookmarks.length === 0) {
+        existingBookmarksList.innerHTML = '<div class="bookmark-item"><p class="bookmark-page">لا توجد علامات محفوظة</p></div>';
+        return;
+      }
+
+      bookmarks.forEach((bookmark, index) => {
+        const bookmarkElement = document.createElement('div');
+        bookmarkElement.className = 'bookmark-item';
+        bookmarkElement.innerHTML = `
+          <div class="bookmark-name">${bookmark.name} ${bookmark.pinned ? '📌' : ''}</div>
+          <div class="bookmark-page">الصفحة ${bookmark.page}</div>
+        `;
+        bookmarkElement.onclick = () => {
+          if (confirm(`هل أنت متأكد من تغيير صفحة "${bookmark.name}" إلى الصفحة ${currentPage}؟`)) {
+            const updatedBookmarks = loadBookmarks();
+            updatedBookmarks[index].page = currentPage;
+            saveBookmarks(updatedBookmarks);
+            closePanel('bookmarks', 'close-bookmarks');
+          }
+        };
+        existingBookmarksList.appendChild(bookmarkElement);
+      });
+    }
+  }
+
+  function showBookmarks() {
+    const viewBookmarksList = document.getElementById('view-bookmarks-list');
+    const viewBookmarksCount = document.getElementById('view-bookmarks-count');
+    if (viewBookmarksList && viewBookmarksCount) {
+      const bookmarks = loadBookmarks();
+      
+      bookmarks.sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return a.order - b.order;
+      });
+
+      viewBookmarksList.innerHTML = '';
+      viewBookmarksCount.innerHTML = `عدد العلامات: ${bookmarks.length}`;
+
+      if (bookmarks.length === 0) {
+        viewBookmarksList.innerHTML = '<div class="view-bookmark-item"><p class="view-bookmark-page">لا توجد علامات</p></div>';
+        return;
+      }
+
+      bookmarks.forEach(bookmark => {
+        const bookmarkElement = document.createElement('div');
+        bookmarkElement.className = 'view-bookmark-item';
+        bookmarkElement.innerHTML = `
+          <div class="view-bookmark-name">${bookmark.name} ${bookmark.pinned ? '📌' : ''}</div>
+          <div class="view-bookmark-page">الصفحة ${bookmark.page}</div>
+        `;
+        bookmarkElement.onclick = () => {
+          currentPage = bookmark.page;
+          updatePage();
+          closePanel('view-bookmarks', 'close-view-bookmarks');
+        };
+        viewBookmarksList.appendChild(bookmarkElement);
+      });
+    }
+  }
+
+  function showManageBookmarks() {
+    const pinnedBookmarksList = document.getElementById('pinned-bookmarks-list');
+    const unpinnedBookmarksList = document.getElementById('unpinned-bookmarks-list');
+    const manageBookmarksCount = document.getElementById('manage-bookmarks-count');
+    const reorderBtn = document.getElementById('reorder-btn');
+    const saveOrderBtn = document.getElementById('save-order-btn');
+    
+    if (pinnedBookmarksList && unpinnedBookmarksList && manageBookmarksCount && reorderBtn && saveOrderBtn) {
+      pinnedBookmarksList.innerHTML = '';
+      unpinnedBookmarksList.innerHTML = '';
+      const bookmarks = loadBookmarks();
+      manageBookmarksCount.innerHTML = `عدد العلامات: ${bookmarks.length}`;
+      saveOrderBtn.style.display = 'none';
+      reorderBtn.style.display = bookmarks.length > 0 ? 'block' : 'none';
+
+      if (bookmarks.length === 0) {
+        unpinnedBookmarksList.innerHTML = '<div class="manage-bookmark-item"><p class="bookmark-page">لا توجد علامات</p></div>';
+        return;
+      }
+
+      const pinnedBookmarks = bookmarks.filter(b => b.pinned).sort((a, b) => a.order - b.order);
+      const unpinnedBookmarks = bookmarks.filter(b => !b.pinned).sort((a, b) => a.order - b.order);
+
+      pinnedBookmarks.forEach((bookmark, index) => {
+        const bookmarkElement = document.createElement('div');
+        bookmarkElement.className = 'manage-bookmark-item';
+        bookmarkElement.setAttribute('data-index', bookmarks.indexOf(bookmark));
+        bookmarkElement.innerHTML = `
+          <div class="bookmark-name">${bookmark.name} 📌</div>
+          <div class="bookmark-page">الصفحة ${bookmark.page}</div>
+          <button class="rename-btn" onclick="renameBookmark(${bookmarks.indexOf(bookmark)})">إعادة تسمية</button>
+          <button class="delete-btn" onclick="deleteBookmark(${bookmarks.indexOf(bookmark)})">حذف</button>
+          <button class="pin-btn" onclick="togglePinBookmark(${bookmarks.indexOf(bookmark)})">إلغاء التثبيت</button>
+        `;
+        pinnedBookmarksList.appendChild(bookmarkElement);
+      });
+
+      unpinnedBookmarks.forEach((bookmark, index) => {
+        const bookmarkElement = document.createElement('div');
+        bookmarkElement.className = 'manage-bookmark-item';
+        bookmarkElement.setAttribute('data-index', bookmarks.indexOf(bookmark));
+        bookmarkElement.innerHTML = `
+          <div class="bookmark-name">${bookmark.name}</div>
+          <div class="bookmark-page">الصفحة ${bookmark.page}</div>
+          <button class="rename-btn" onclick="renameBookmark(${bookmarks.indexOf(bookmark)})">إعادة تسمية</button>
+          <button class="delete-btn" onclick="deleteBookmark(${bookmarks.indexOf(bookmark)})">حذف</button>
+          <button class="pin-btn" onclick="togglePinBookmark(${bookmarks.indexOf(bookmark)})">تثبيت</button>
+        `;
+        unpinnedBookmarksList.appendChild(bookmarkElement);
+      });
+
+      if (pinnedSortable) {
+        pinnedSortable.destroy();
+        pinnedSortable = null;
+      }
+      if (unpinnedSortable) {
+        unpinnedSortable.destroy();
+        unpinnedSortable = null;
+      }
+    }
+  }
+
+  function enableDragAndDrop() {
+    const pinnedBookmarksList = document.getElementById('pinned-bookmarks-list');
+    const unpinnedBookmarksList = document.getElementById('unpinned-bookmarks-list');
+    const saveOrderBtn = document.getElementById('save-order-btn');
+    const reorderBtn = document.getElementById('reorder-btn');
+
+    if (pinnedBookmarksList && unpinnedBookmarksList && saveOrderBtn && reorderBtn) {
+      reorderBtn.style.display = 'none';
+      saveOrderBtn.style.display = 'block';
+
+      if (pinnedSortable) {
+        pinnedSortable.destroy();
+        pinnedSortable = null;
+      }
+      if (unpinnedSortable) {
+        unpinnedSortable.destroy();
+        unpinnedSortable = null;
+      }
+
+      pinnedSortable = new Sortable(pinnedBookmarksList, {
+        group: 'bookmarks',
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onEnd: function (evt) {
+          updateBookmarkOrder();
+        }
+      });
+
+      unpinnedSortable = new Sortable(unpinnedBookmarksList, {
+        group: 'bookmarks',
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onEnd: function (evt) {
+          updateBookmarkOrder();
+        }
+      });
+    }
+
+    function updateBookmarkOrder() {
+      const bookmarks = loadBookmarks();
+      const pinnedBookmarksList = document.getElementById('pinned-bookmarks-list');
+      const unpinnedBookmarksList = document.getElementById('unpinned-bookmarks-list');
+      
+      const pinnedItems = Array.from(pinnedBookmarksList.children).map(item => {
+        const index = parseInt(item.getAttribute('data-index'));
+        return bookmarks[index];
+      });
+      
+      const unpinnedItems = Array.from(unpinnedBookmarksList.children).map(item => {
+        const index = parseInt(item.getAttribute('data-index'));
+        return bookmarks[index];
+      });
+
+      const updatedBookmarks = [...pinnedItems, ...unpinnedItems].map((bookmark, index) => ({
+        ...bookmark,
+        order: index,
+        pinned: index < pinnedItems.length
+      }));
+
+      saveBookmarks(updatedBookmarks);
+    }
+  }
+
+  function saveOrder() {
+    const saveOrderBtn = document.getElementById('save-order-btn');
+    const reorderBtn = document.getElementById('reorder-btn');
+
+    if (pinnedSortable) {
+      pinnedSortable.destroy();
+      pinnedSortable = null;
+    }
+    if (unpinnedSortable) {
+      unpinnedSortable.destroy();
+      unpinnedSortable = null;
+    }
+
+    if (saveOrderBtn && reorderBtn) {
+      saveOrderBtn.style.display = 'none';
+      reorderBtn.style.display = 'block';
+    }
+  }
+
+  function renameBookmark(index) {
+    const newName = prompt('أدخل الاسم الجديد للعلامة:', loadBookmarks()[index].name);
+    if (newName && newName.trim()) {
+      const bookmarks = loadBookmarks();
+      bookmarks[index].name = newName.trim();
+      saveBookmarks(bookmarks);
+      showManageBookmarks();
+    }
+  }
+
+  function deleteBookmark(index) {
+    if (confirm('هل تريد حذف هذه العلامة؟')) {
+      const bookmarks = loadBookmarks();
+      bookmarks.splice(index, 1);
+      bookmarks.forEach((bookmark, i) => {
+        bookmark.order = i;
+      });
+      saveBookmarks(bookmarks);
+      showManageBookmarks();
+    }
+  }
+
+  function togglePinBookmark(index) {
+    const bookmarks = loadBookmarks();
+    bookmarks[index].pinned = !bookmarks[index].pinned;
+    bookmarks.forEach((bookmark, i) => {
+      bookmark.order = i;
+    });
+    saveBookmarks(bookmarks);
+    showManageBookmarks();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const savedColor = localStorage.getItem('backgroundColor');
+    if (savedColor) {
+      document.body.style.background = savedColor;
+      const colorPicker = document.getElementById('color-picker');
+      if (colorPicker) {
+        colorPicker.value = savedColor;
+      }
+    }
+
+    const savedBrightness = localStorage.getItem('brightness');
+    if (savedBrightness) {
+      const brightnessSlider = document.getElementById('brightness-slider');
+      if (brightnessSlider) {
+        brightnessSlider.value = savedBrightness;
+        updateBrightness(savedBrightness);
+      }
+    }
+
+    const pageContainer = document.getElementById('page-container');
+    const floatingMenu = document.getElementById('floating-menu');
+    const menuToggleBtn = document.getElementById('menu-toggle-btn');
+    const menuIcons = document.getElementById('menu-icons');
+    const brightnessBtn = document.getElementById('brightness-btn');
+    const brightnessControl = document.getElementById('brightness-control');
+    const brightnessSlider = document.getElementById('brightness-slider');
+
+    let isMenuVisible = false;
+
+    if (pageContainer && floatingMenu && menuToggleBtn && menuIcons) {
+      pageContainer.addEventListener('click', (e) => {
+        if (document.querySelector('.show')) {
+          return;
+        }
+        e.stopPropagation();
+        isMenuVisible = false;
+        menuIcons.style.display = 'none';
+        if (brightnessControl) {
+          isBrightnessControlVisible = false;
+          brightnessControl.style.display = 'none';
+        }
+      });
+
+      menuToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        isMenuVisible = !isMenuVisible;
+        menuIcons.style.display = isMenuVisible ? 'flex' : 'none';
+        if (brightnessControl && isBrightnessControlVisible) {
+          isBrightnessControlVisible = false;
+          brightnessControl.style.display = 'none';
+        }
+      });
+
+      if (brightnessBtn && brightnessControl && brightnessSlider) {
+        brightnessBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          isBrightnessControlVisible = !isBrightnessControlVisible;
+          brightnessControl.style.display = isBrightnessControlVisible ? 'block' : 'none';
+          if (isMenuVisible) {
+            isMenuVisible = false;
+            menuIcons.style.display = 'none';
+          }
+        });
+
+        brightnessSlider.addEventListener('input', () => {
+          const value = brightnessSlider.value;
+          updateBrightness(value);
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        if ((isMenuVisible && !floatingMenu.contains(e.target)) || (isBrightnessControlVisible && !floatingMenu.contains(e.target)) && !document.querySelector('.show')) {
+          isMenuVisible = false;
+          isBrightnessControlVisible = false;
+          menuIcons.style.display = 'none';
+          if (brightnessControl) {
+            brightnessControl.style.display = 'none';
+          }
+        }
+      });
+    }
+
+    if (pageContainer) {
+      const hammer = new Hammer(pageContainer);
+      hammer.on('swipeleft', prevPage);
+      hammer.on('swiperight', nextPage);
+    }
+
+    updatePage();
+
+    const showBtn = document.getElementById('show');
+    if (showBtn) {
+      showBtn.addEventListener('click', () => showPanel('searsh', 'close-search'));
+      showBtn.addEventListener('dblclick', () => closePanel('searsh', 'close-search'));
+    }
+
+    const closeSearch = document.getElementById('close-search');
+    if (closeSearch) {
+      closeSearch.addEventListener('click', () => closePanel('searsh', 'close-search'));
+    }
+
+    const searchTerm = document.getElementById('search-term');
+    if (searchTerm) {
+      let debounceTimeout;
+      searchTerm.addEventListener('input', function () {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(searchAyah, 300);
+      });
+    }
+
+    const bookmarkBtn = document.getElementById('bookmark');
+    if (bookmarkBtn) {
+      bookmarkBtn.addEventListener('click', () => {
+        showPanel('bookmarks', 'close-bookmarks');
+        showBookmarkOptions();
+      });
+      bookmarkBtn.addEventListener('dblclick', () => closePanel('bookmarks', 'close-bookmarks'));
+    }
+
+    const closeBookmarks = document.getElementById('close-bookmarks');
+    if (closeBookmarks) {
+      closeBookmarks.addEventListener('click', () => closePanel('bookmarks', 'close-bookmarks'));
+    }
+
+    const addBookmarkBtn = document.getElementById('add-bookmark-btn');
+    if (addBookmarkBtn) {
+      addBookmarkBtn.addEventListener('click', addBookmark);
+    }
+
+    const newBookmarkBtn = document.getElementById('new-bookmark-btn');
+    if (newBookmarkBtn) {
+      newBookmarkBtn.addEventListener('click', showNewBookmarkInput);
+    }
+
+    const editBookmarkBtn = document.getElementById('edit-bookmark-btn');
+    if (editBookmarkBtn) {
+      editBookmarkBtn.addEventListener('click', showExistingBookmarks);
+    }
+
+    const viewBookmarksBtn = document.getElementById('view-bookmarks-btn');
+    if (viewBookmarksBtn) {
+      viewBookmarksBtn.addEventListener('click', () => {
+        showPanel('view-bookmarks', 'close-view-bookmarks');
+        showBookmarks();
+      });
+      viewBookmarksBtn.addEventListener('dblclick', () => closePanel('view-bookmarks', 'close-view-bookmarks'));
+    }
+
+    const closeViewBookmarks = document.getElementById('close-view-bookmarks');
+    if (closeViewBookmarks) {
+      closeViewBookmarks.addEventListener('click', () => closePanel('view-bookmarks', 'close-view-bookmarks'));
+    }
+
+    const manageBookmarksBtn = document.getElementById('manage-bookmarks-btn');
+    if (manageBookmarksBtn) {
+      manageBookmarksBtn.addEventListener('click', () => {
+        showPanel('manage-bookmarks', 'close-manage-bookmarks');
+        showManageBookmarks();
+      });
+      manageBookmarksBtn.addEventListener('dblclick', () => closePanel('manage-bookmarks', 'close-manage-bookmarks'));
+    }
+
+    const closeManageBookmarks = document.getElementById('close-manage-bookmarks');
+    if (closeManageBookmarks) {
+      closeManageBookmarks.addEventListener('click', () => closePanel('manage-bookmarks', 'close-manage-bookmarks'));
+    }
+
+    const indexBtn = document.getElementById('index-btn');
+    if (indexBtn) {
+      indexBtn.addEventListener('click', () => {
+        showPanel('index', 'close-index');
+        showIndex();
+      });
+      indexBtn.addEventListener('dblclick', () => closePanel('index', 'close-index'));
+    }
+
+    const closeIndex = document.getElementById('close-index');
+    if (closeIndex) {
+      closeIndex.addEventListener('click', () => closePanel('index', 'close-index'));
+    }
+
+    const partsIndexBtn = document.getElementById('parts-index-btn');
+    if (partsIndexBtn) {
+      partsIndexBtn.addEventListener('click', () => {
+        showPanel('parts-index', 'close-parts-index');
+        showPartsIndex();
+      });
+      partsIndexBtn.addEventListener('dblclick', () => closePanel('parts-index', 'close-parts-index'));
+    }
+
+    const closePartsIndex = document.getElementById('close-parts-index');
+    if (closePartsIndex) {
+      closePartsIndex.addEventListener('click', () => closePanel('parts-index', 'close-parts-index'));
+    }
+
+    const reorderBtn = document.getElementById('reorder-btn');
+    if (reorderBtn) {
+      reorderBtn.addEventListener('click', enableDragAndDrop);
+    }
+
+    const saveOrderBtn = document.getElementById('save-order-btn');
+    if (saveOrderBtn) {
+      saveOrderBtn.addEventListener('click', saveOrder);
+    }
+
+    const colorBtn = document.getElementById('color-btn');
+    if (colorBtn) {
+      colorBtn.addEventListener('click', showColorPanel);
+      colorBtn.addEventListener('dblclick', () => closePanel('color-panel', 'close-color'));
+    }
+
+    const closeColor = document.getElementById('close-color');
+    if (closeColor) {
+      closeColor.addEventListener('click', () => closePanel('color-panel', 'close-color'));
+    }
+  });
+
+  function flipPage(direction) {
+    if (direction === 'right' && currentPage === 604) {
+      window.location.href = '/adea.html';
+      return;
+    }
+    if (direction === 'left' && currentPage > 1) {
+      currentPage--;
+      updatePage();
+    } else if (direction === 'right' && currentPage < 604) {
+      currentPage++;
+      updatePage();
+    }
+  }
+
+  const pageContainer = document.getElementById('page-container');
+  if (pageContainer) {
+    const hammer = new Hammer(pageContainer);
+    hammer.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+    hammer.on('swipeleft', () => flipPage('left'));
+    hammer.on('swiperight', () => flipPage('right'));
+  }
+  </script>
+</body>
+</html>

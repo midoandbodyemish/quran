@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نبذة عن تطبيق القرآن الكريم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Naskh Arabic', sans-serif;
+            scroll-behavior: smooth;
+        }
+        body {
+            background-color: #f9f9fb;
+            color: #2c3e50;
+        }
+        .header {
+            background: url('https://f.top4top.io/p_3398jodzg0.jpg') center/cover no-repeat;
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            position: relative;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(13, 60, 48, 0.7), rgba(20, 90, 70, 0.9));
+        }
+        .header h1 {
+            font-size: 3.2em;
+            z-index: 1;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .header p {
+            font-size: 1.4em;
+            z-index: 1;
+            margin-bottom: 30px;
+        }
+        .header a {
+            background: linear-gradient(45deg, #d4af37, #f1c40f);
+            color: #2c3e50;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.3em;
+            z-index: 1;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .header a:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .about-section {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .about-section img {
+            width: 320px;
+            border-radius: 50%;
+            border: 8px solid #0d3c30;
+            transition: transform 0.5s;
+        }
+        .about-section img:hover {
+            transform: scale(1.05);
+        }
+        .about-section .content {
+            flex: 1;
+        }
+        .about-section h2 {
+            color: #0d3c30;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .about-section p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #34495e;
+        }
+        .features-section {
+            background: linear-gradient(135deg, #0d3c30, #145a46);
+            color: #fff;
+            padding: 80px 30px;
+            text-align: center;
+        }
+        .features-section h2 {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(8px);
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .feature-card i {
+            font-size: 2.5em;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+        .feature-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            font-size: 1em;
+            line-height: 1.6;
+        }
+        .cta-section {
+            text-align: justify;
+            padding: 60px 30px;
+            background: #f9f9fb;
+        }
+        .cta-section h3 {
+            font-size: 1.8em;
+            color: #0d3c30;
+            margin-bottom: 20px;
+        }
+        .cta-section p {
+            font-size: 1.2em;
+            color: #34495e;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+        .cta-section a {
+            background: linear-gradient(45deg, #d4af37, #f1c40f);
+            color: #2c3e50;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 1.3em;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .cta-section a:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .footer {
+            background: #0d3c30;
+            color: #fff;
+            text-align: center;
+            padding: 40px 30px;
+        }
+        .footer p {
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        .footer .social-links a {
+            color: #d4af37;
+            margin: 0 15px;
+            font-size: 1.8em;
+            transition: color 0.3s;
+        }
+        .footer .social-links a:hover {
+            color: #f1c40f;
+        }
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+            .header p {
+                font-size: 1.1em;
+            }
+            .about-section {
+                flex-direction: column;
+                text-align: center;
+                margin: 40px auto;
+            }
+            .about-section img {
+                width: 250px;
+            }
+            .features-section h2, .about-section h2 {
+                font-size: 2em;
+            }
+            .header {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>تطبيق القرآن الكريم</h1>
+        <p>وَإِنَّكَ لَتَهْدِي إِلَىٰ صِرَاطٍ مُسْتَقِيمٍ</p>
+        <a href="https://midoandbodyemish.github.io/khedma/" target="_blank">استكشف الخدمة الآن</a>
+    </div>
+    <section class="about-section">
+        <img src="https://h.top4top.io/p_3389n1qo11.jpg" alt="صورة التطبيق">
+        <div class="content">
+            <h2>نبذة عن التطبيق</h2>
+            <p>
+                تطبيق القرآن الكريم من تطوير خدمة <strong>وَإِنَّكَ لَتَهْدِي إِلَى صِرَاطٍ مُسْتَقِيمٍ</strong> هو تطبيق لقراءة القرآن الكريم بسهولة ويسر وبدون مشقة.
+            </p>
+            <p>
+               هذا التطبيق مصمم ليكون رفيق المسلم في قراءة القرآن الكريم يومياً حتى لا يهجر.
+            </p>
+        </div>
+    </section>
+    <section class="features-section">
+        <h2>مميزات التطبيق</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-internet"></i>
+                <h3>يعمل بدون إنترنت</h3>
+                <p>يحتاج هذا التطبيق الى العمل مع انترنت لتحميل البيانات ومن ثم يعنل بدون انترنت</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-book-open"></i>
+                <h3>التصميم</h3>
+                <p>يتميز هذا التطبيق بواجهة بسيطة جداً ومميزة</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>صمم التطبيق على حسب ذوقك</h3>
+              <p>يمكنك تصميم هذا التطبيق على ذوقك لأنه يدعم اكثر من 100 تصميم مختلف</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-Bookmark "></i>
+                <h3>العلامات</h3>
+                <p>يمكنك التحكم بالعلامات بسهولة ويسر ويمكنك تغيير العلامات وحذفها.</p>
+            </div>
+        </div>
+    </section>
+    <section class="cta-section">
+        <h3>شاركنا رأيك</h3>
+        <p>ولإخبارنا بآرائكم يرجى تصفح قسم الآراء والمشكلات من الخدمة نفسها.</p>
+        <a href="https://midoandbody.github.io/khedma/" target="_blank">زوروا الخدمة الآن</a>
+    </section>
+    <div class="footer">
+        <p>جميع الحقوق محفوظة  - خدمة وَإِنَّكَ لَتَهْدِي إِلَى صِرَاطٍ مُسْتَقِيمٍ</p>
+        <div class="footer">
+        <div class="social-links">
+            <a href="https://x.com/KBwdy31592?t=J3AmBPQ73FrDp_QztMM5Cg&s=09" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61560840105785&mibextid=ZbWKwL" target="_blank"><i class="fab fa-facebook"></i></a>
+            <a href="https://chat.whatsapp.com/K7T7OgUmOl49kh7Pjg607f" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </div>
+</body>
+</html>
