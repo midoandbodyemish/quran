@@ -667,7 +667,7 @@
     </div>
   </div>
 
-  <script>
+<script>
   // تسجيل Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -679,7 +679,7 @@
     });
   }
 
-  // تحميل الصور مسبقًا
+  // تحميل الصور مسبقًا لتحسين الأداء
   function preloadImages() {
     for (let i = 1; i <= 604; i++) {
       const img = new Image();
@@ -693,6 +693,7 @@
   let pinnedSortable = null;
   let unpinnedSortable = null;
   let isBrightnessControlVisible = false;
+  let isSwiping = false; // لمنع تكرار التمرير
 
   const quarterNames = ['الأول', 'الثاني', 'الثالث', 'الرابع'];
 
@@ -709,22 +710,31 @@
 
   function updatePage() {
     const imgElement = document.getElementById('page-image');
-    imgElement.src = `quran/${currentPage}.png`;
-    localStorage.setItem('lastPage', currentPage);
-  }
-
-  function prevPage() {
-    if (currentPage > 1) {
-      currentPage--;
-      updatePage();
+    if (imgElement) {
+      imgElement.src = `quran/${currentPage}.png`;
+      localStorage.setItem('lastPage', currentPage);
+      console.log(`Updated to page: ${currentPage}`); // لتصحيح الأخطاء
     }
   }
 
-  function nextPage() {
-    if (currentPage < totalPages) {
+  function flipPage(direction) {
+    if (isSwiping) return; // منع تكرار التمرير
+    isSwiping = true;
+
+    if (direction === 'right' && currentPage < totalPages) {
       currentPage++;
       updatePage();
+    } else if (direction === 'left' && currentPage > 1) {
+      currentPage--;
+      updatePage();
+    } else if (direction === 'right' && currentPage === 604) {
+      window.location.href = '/adea.html';
     }
+
+    // إعادة تعيين isSwiping بعد تأخير
+    setTimeout(() => {
+      isSwiping = false;
+    }, 300);
   }
 
   function removeTashkeel(text) {
@@ -1475,12 +1485,27 @@
           }
         }
       });
-    }
 
-    if (pageContainer) {
-      const hammer = new Hammer(pageContainer);
-      hammer.on('swipeleft', prevPage);
-      hammer.on('swiperight', nextPage);
+      // إعداد أحداث اللمس الأصلية للتمرير
+      let touchStartX = 0;
+      pageContainer.addEventListener('touchstart', e => {
+        touchStartX = e.touches[0].clientX;
+        e.preventDefault(); // منع السلوك الافتراضي
+      }, { passive: false });
+
+      pageContainer.addEventListener('touchend', e => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const deltaX = touchStartX - touchEndX;
+        if (Math.abs(deltaX) > 50) { // عتبة التمرير
+          if (deltaX > 0) {
+            console.log('Swipe left detected'); // لتصحيح الأخطاء
+            flipPage('left');
+          } else {
+            console.log('Swipe right detected'); // لتصحيح الأخطاء
+            flipPage('right');
+          }
+        }
+      }, { passive: false });
     }
 
     updatePage();
@@ -1611,28 +1636,6 @@
       closeColor.addEventListener('click', () => closePanel('color-panel', 'close-color'));
     }
   });
-
-  function flipPage(direction) {
-    if (direction === 'right' && currentPage === 604) {
-      window.location.href = '/adea.html';
-      return;
-    }
-    if (direction === 'left' && currentPage > 1) {
-      currentPage--;
-      updatePage();
-    } else if (direction === 'right' && currentPage < 604) {
-      currentPage++;
-      updatePage();
-    }
-  }
-
-  const pageContainer = document.getElementById('page-container');
-  if (pageContainer) {
-    const hammer = new Hammer(pageContainer);
-    hammer.get('swipe').set({ direction: Hammer.DIRECTION_HORIZONTAL });
-    hammer.on('swipeleft', () => flipPage('left'));
-    hammer.on('swiperight', () => flipPage('right'));
-  }
-  </script>
+</script>
 </body>
 </html>
