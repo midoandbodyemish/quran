@@ -1,0 +1,1442 @@
+[
+  {
+    "page": 1,
+    "juz": 1,
+    "hizbQuarter": 1,
+    "hizb": 1
+  },
+  {
+    "page": 5,
+    "juz": 1,
+    "hizbQuarter": 2,
+    "hizb": 1
+  },
+  {
+    "page": 7,
+    "juz": 1,
+    "hizbQuarter": 3,
+    "hizb": 1
+  },
+  {
+    "page": 9,
+    "juz": 1,
+    "hizbQuarter": 4,
+    "hizb": 1
+  },
+  {
+    "page": 11,
+    "juz": 1,
+    "hizbQuarter": 5,
+    "hizb": 2
+  },
+  {
+    "page": 14,
+    "juz": 1,
+    "hizbQuarter": 6,
+    "hizb": 2
+  },
+  {
+    "page": 17,
+    "juz": 1,
+    "hizbQuarter": 7,
+    "hizb": 2
+  },
+  {
+    "page": 19,
+    "juz": 1,
+    "hizbQuarter": 8,
+    "hizb": 2
+  },
+  {
+    "page": 22,
+    "juz": 2,
+    "hizbQuarter": 9,
+    "hizb": 3
+  },
+  {
+    "page": 24,
+    "juz": 2,
+    "hizbQuarter": 10,
+    "hizb": 3
+  },
+  {
+    "page": 27,
+    "juz": 2,
+    "hizbQuarter": 11,
+    "hizb": 3
+  },
+  {
+    "page": 29,
+    "juz": 2,
+    "hizbQuarter": 12,
+    "hizb": 3
+  },
+  {
+    "page": 32,
+    "juz": 2,
+    "hizbQuarter": 13,
+    "hizb": 4
+  },
+  {
+    "page": 34,
+    "juz": 2,
+    "hizbQuarter": 14,
+    "hizb": 4
+  },
+  {
+    "page": 37,
+    "juz": 2,
+    "hizbQuarter": 15,
+    "hizb": 4
+  },
+  {
+    "page": 39,
+    "juz": 2,
+    "hizbQuarter": 16,
+    "hizb": 4
+  },
+  {
+    "page": 42,
+    "juz": 3,
+    "hizbQuarter": 17,
+    "hizb": 5
+  },
+  {
+    "page": 44,
+    "juz": 3,
+    "hizbQuarter": 18,
+    "hizb": 5
+  },
+  {
+    "page": 46,
+    "juz": 3,
+    "hizbQuarter": 19,
+    "hizb": 5
+  },
+  {
+    "page": 49,
+    "juz": 3,
+    "hizbQuarter": 20,
+    "hizb": 5
+  },
+  {
+    "page": 51,
+    "juz": 3,
+    "hizbQuarter": 21,
+    "hizb": 6
+  },
+  {
+    "page": 54,
+    "juz": 3,
+    "hizbQuarter": 22,
+    "hizb": 6
+  },
+  {
+    "page": 56,
+    "juz": 3,
+    "hizbQuarter": 23,
+    "hizb": 6
+  },
+  {
+    "page": 59,
+    "juz": 3,
+    "hizbQuarter": 24,
+    "hizb": 6
+  },
+  {
+    "page": 62,
+    "juz": 4,
+    "hizbQuarter": 25,
+    "hizb": 7
+  },
+  {
+    "page": 64,
+    "juz": 4,
+    "hizbQuarter": 26,
+    "hizb": 7
+  },
+  {
+    "page": 67,
+    "juz": 4,
+    "hizbQuarter": 27,
+    "hizb": 7
+  },
+  {
+    "page": 69,
+    "juz": 4,
+    "hizbQuarter": 28,
+    "hizb": 7
+  },
+  {
+    "page": 72,
+    "juz": 4,
+    "hizbQuarter": 29,
+    "hizb": 8
+  },
+  {
+    "page": 74,
+    "juz": 4,
+    "hizbQuarter": 30,
+    "hizb": 8
+  },
+  {
+    "page": 77,
+    "juz": 4,
+    "hizbQuarter": 31,
+    "hizb": 8
+  },
+  {
+    "page": 79,
+    "juz": 4,
+    "hizbQuarter": 32,
+    "hizb": 8
+  },
+  {
+    "page": 82,
+    "juz": 5,
+    "hizbQuarter": 33,
+    "hizb": 9
+  },
+  {
+    "page": 84,
+    "juz": 5,
+    "hizbQuarter": 34,
+    "hizb": 9
+  },
+  {
+    "page": 87,
+    "juz": 5,
+    "hizbQuarter": 35,
+    "hizb": 9
+  },
+  {
+    "page": 89,
+    "juz": 5,
+    "hizbQuarter": 36,
+    "hizb": 9
+  },
+  {
+    "page": 92,
+    "juz": 5,
+    "hizbQuarter": 37,
+    "hizb": 10
+  },
+  {
+    "page": 94,
+    "juz": 5,
+    "hizbQuarter": 38,
+    "hizb": 10
+  },
+  {
+    "page": 97,
+    "juz": 5,
+    "hizbQuarter": 39,
+    "hizb": 10
+  },
+  {
+    "page": 100,
+    "juz": 5,
+    "hizbQuarter": 40,
+    "hizb": 10
+  },
+  {
+    "page": 102,
+    "juz": 6,
+    "hizbQuarter": 41,
+    "hizb": 11
+  },
+  {
+    "page": 104,
+    "juz": 6,
+    "hizbQuarter": 42,
+    "hizb": 11
+  },
+  {
+    "page": 106,
+    "juz": 6,
+    "hizbQuarter": 43,
+    "hizb": 11
+  },
+  {
+    "page": 109,
+    "juz": 6,
+    "hizbQuarter": 44,
+    "hizb": 11
+  },
+  {
+    "page": 112,
+    "juz": 6,
+    "hizbQuarter": 45,
+    "hizb": 12
+  },
+  {
+    "page": 114,
+    "juz": 6,
+    "hizbQuarter": 46,
+    "hizb": 12
+  },
+  {
+    "page": 117,
+    "juz": 6,
+    "hizbQuarter": 47,
+    "hizb": 12
+  },
+  {
+    "page": 119,
+    "juz": 6,
+    "hizbQuarter": 48,
+    "hizb": 12
+  },
+  {
+    "page": 121,
+    "juz": 7,
+    "hizbQuarter": 49,
+    "hizb": 13
+  },
+  {
+    "page": 124,
+    "juz": 7,
+    "hizbQuarter": 50,
+    "hizb": 13
+  },
+  {
+    "page": 126,
+    "juz": 7,
+    "hizbQuarter": 51,
+    "hizb": 13
+  },
+  {
+    "page": 129,
+    "juz": 7,
+    "hizbQuarter": 52,
+    "hizb": 13
+  },
+  {
+    "page": 132,
+    "juz": 7,
+    "hizbQuarter": 53,
+    "hizb": 14
+  },
+  {
+    "page": 134,
+    "juz": 7,
+    "hizbQuarter": 54,
+    "hizb": 14
+  },
+  {
+    "page": 137,
+    "juz": 7,
+    "hizbQuarter": 55,
+    "hizb": 14
+  },
+  {
+    "page": 140,
+    "juz": 7,
+    "hizbQuarter": 56,
+    "hizb": 14
+  },
+  {
+    "page": 142,
+    "juz": 8,
+    "hizbQuarter": 57,
+    "hizb": 15
+  },
+  {
+    "page": 144,
+    "juz": 8,
+    "hizbQuarter": 58,
+    "hizb": 15
+  },
+  {
+    "page": 146,
+    "juz": 8,
+    "hizbQuarter": 59,
+    "hizb": 15
+  },
+  {
+    "page": 148,
+    "juz": 8,
+    "hizbQuarter": 60,
+    "hizb": 15
+  },
+  {
+    "page": 151,
+    "juz": 8,
+    "hizbQuarter": 61,
+    "hizb": 16
+  },
+  {
+    "page": 154,
+    "juz": 8,
+    "hizbQuarter": 62,
+    "hizb": 16
+  },
+  {
+    "page": 156,
+    "juz": 8,
+    "hizbQuarter": 63,
+    "hizb": 16
+  },
+  {
+    "page": 158,
+    "juz": 8,
+    "hizbQuarter": 64,
+    "hizb": 16
+  },
+  {
+    "page": 162,
+    "juz": 9,
+    "hizbQuarter": 65,
+    "hizb": 17
+  },
+  {
+    "page": 164,
+    "juz": 9,
+    "hizbQuarter": 66,
+    "hizb": 17
+  },
+  {
+    "page": 167,
+    "juz": 9,
+    "hizbQuarter": 67,
+    "hizb": 17
+  },
+  {
+    "page": 170,
+    "juz": 9,
+    "hizbQuarter": 68,
+    "hizb": 17
+  },
+  {
+    "page": 173,
+    "juz": 9,
+    "hizbQuarter": 69,
+    "hizb": 18
+  },
+  {
+    "page": 175,
+    "juz": 9,
+    "hizbQuarter": 70,
+    "hizb": 18
+  },
+  {
+    "page": 177,
+    "juz": 9,
+    "hizbQuarter": 71,
+    "hizb": 18
+  },
+  {
+    "page": 179,
+    "juz": 9,
+    "hizbQuarter": 72,
+    "hizb": 18
+  },
+  {
+    "page": 182,
+    "juz": 10,
+    "hizbQuarter": 73,
+    "hizb": 19
+  },
+  {
+    "page": 184,
+    "juz": 10,
+    "hizbQuarter": 74,
+    "hizb": 19
+  },
+  {
+    "page": 187,
+    "juz": 10,
+    "hizbQuarter": 75,
+    "hizb": 19
+  },
+  {
+    "page": 189,
+    "juz": 10,
+    "hizbQuarter": 76,
+    "hizb": 19
+  },
+  {
+    "page": 192,
+    "juz": 10,
+    "hizbQuarter": 77,
+    "hizb": 20
+  },
+  {
+    "page": 194,
+    "juz": 10,
+    "hizbQuarter": 78,
+    "hizb": 20
+  },
+  {
+    "page": 196,
+    "juz": 10,
+    "hizbQuarter": 79,
+    "hizb": 20
+  },
+  {
+    "page": 199,
+    "juz": 10,
+    "hizbQuarter": 80,
+    "hizb": 20
+  },
+  {
+    "page": 201,
+    "juz": 11,
+    "hizbQuarter": 81,
+    "hizb": 21
+  },
+  {
+    "page": 204,
+    "juz": 11,
+    "hizbQuarter": 82,
+    "hizb": 21
+  },
+  {
+    "page": 206,
+    "juz": 11,
+    "hizbQuarter": 83,
+    "hizb": 21
+  },
+  {
+    "page": 209,
+    "juz": 11,
+    "hizbQuarter": 84,
+    "hizb": 21
+  },
+  {
+    "page": 212,
+    "juz": 11,
+    "hizbQuarter": 85,
+    "hizb": 22
+  },
+  {
+    "page": 214,
+    "juz": 11,
+    "hizbQuarter": 86,
+    "hizb": 22
+  },
+  {
+    "page": 217,
+    "juz": 11,
+    "hizbQuarter": 87,
+    "hizb": 22
+  },
+  {
+    "page": 219,
+    "juz": 11,
+    "hizbQuarter": 88,
+    "hizb": 22
+  },
+  {
+    "page": 222,
+    "juz": 12,
+    "hizbQuarter": 89,
+    "hizb": 23
+  },
+  {
+    "page": 224,
+    "juz": 12,
+    "hizbQuarter": 90,
+    "hizb": 23
+  },
+  {
+    "page": 226,
+    "juz": 12,
+    "hizbQuarter": 91,
+    "hizb": 23
+  },
+  {
+    "page": 228,
+    "juz": 12,
+    "hizbQuarter": 92,
+    "hizb": 23
+  },
+  {
+    "page": 231,
+    "juz": 12,
+    "hizbQuarter": 93,
+    "hizb": 24
+  },
+  {
+    "page": 233,
+    "juz": 12,
+    "hizbQuarter": 94,
+    "hizb": 24
+  },
+  {
+    "page": 236,
+    "juz": 12,
+    "hizbQuarter": 95,
+    "hizb": 24
+  },
+  {
+    "page": 238,
+    "juz": 12,
+    "hizbQuarter": 96,
+    "hizb": 24
+  },
+  {
+    "page": 242,
+    "juz": 13,
+    "hizbQuarter": 97,
+    "hizb": 25
+  },
+  {
+    "page": 244,
+    "juz": 13,
+    "hizbQuarter": 98,
+    "hizb": 25
+  },
+  {
+    "page": 247,
+    "juz": 13,
+    "hizbQuarter": 99,
+    "hizb": 25
+  },
+  {
+    "page": 249,
+    "juz": 13,
+    "hizbQuarter": 100,
+    "hizb": 25
+  },
+  {
+    "page": 252,
+    "juz": 13,
+    "hizbQuarter": 101,
+    "hizb": 26
+  },
+  {
+    "page": 254,
+    "juz": 13,
+    "hizbQuarter": 102,
+    "hizb": 26
+  },
+  {
+    "page": 256,
+    "juz": 13,
+    "hizbQuarter": 103,
+    "hizb": 26
+  },
+  {
+    "page": 259,
+    "juz": 13,
+    "hizbQuarter": 104,
+    "hizb": 26
+  },
+  {
+    "page": 262,
+    "juz": 14,
+    "hizbQuarter": 105,
+    "hizb": 27
+  },
+  {
+    "page": 264,
+    "juz": 14,
+    "hizbQuarter": 106,
+    "hizb": 27
+  },
+  {
+    "page": 267,
+    "juz": 14,
+    "hizbQuarter": 107,
+    "hizb": 27
+  },
+  {
+    "page": 270,
+    "juz": 14,
+    "hizbQuarter": 108,
+    "hizb": 27
+  },
+  {
+    "page": 272,
+    "juz": 14,
+    "hizbQuarter": 109,
+    "hizb": 28
+  },
+  {
+    "page": 275,
+    "juz": 14,
+    "hizbQuarter": 110,
+    "hizb": 28
+  },
+  {
+    "page": 277,
+    "juz": 14,
+    "hizbQuarter": 111,
+    "hizb": 28
+  },
+  {
+    "page": 280,
+    "juz": 14,
+    "hizbQuarter": 112,
+    "hizb": 28
+  },
+  {
+    "page": 282,
+    "juz": 15,
+    "hizbQuarter": 113,
+    "hizb": 29
+  },
+  {
+    "page": 284,
+    "juz": 15,
+    "hizbQuarter": 114,
+    "hizb": 29
+  },
+  {
+    "page": 287,
+    "juz": 15,
+    "hizbQuarter": 115,
+    "hizb": 29
+  },
+  {
+    "page": 290,
+    "juz": 15,
+    "hizbQuarter": 116,
+    "hizb": 29
+  },
+  {
+    "page": 292,
+    "juz": 15,
+    "hizbQuarter": 117,
+    "hizb": 30
+  },
+  {
+    "page": 295,
+    "juz": 15,
+    "hizbQuarter": 118,
+    "hizb": 30
+  },
+  {
+    "page": 297,
+    "juz": 15,
+    "hizbQuarter": 119,
+    "hizb": 30
+  },
+  {
+    "page": 299,
+    "juz": 15,
+    "hizbQuarter": 120,
+    "hizb": 30
+  },
+  {
+    "page": 302,
+    "juz": 16,
+    "hizbQuarter": 121,
+    "hizb": 31
+  },
+  {
+    "page": 304,
+    "juz": 16,
+    "hizbQuarter": 122,
+    "hizb": 31
+  },
+  {
+    "page": 306,
+    "juz": 16,
+    "hizbQuarter": 123,
+    "hizb": 31
+  },
+  {
+    "page": 309,
+    "juz": 16,
+    "hizbQuarter": 124,
+    "hizb": 31
+  },
+  {
+    "page": 312,
+    "juz": 16,
+    "hizbQuarter": 125,
+    "hizb": 32
+  },
+  {
+    "page": 315,
+    "juz": 16,
+    "hizbQuarter": 126,
+    "hizb": 32
+  },
+  {
+    "page": 317,
+    "juz": 16,
+    "hizbQuarter": 127,
+    "hizb": 32
+  },
+  {
+    "page": 319,
+    "juz": 16,
+    "hizbQuarter": 128,
+    "hizb": 32
+  },
+  {
+    "page": 322,
+    "juz": 17,
+    "hizbQuarter": 129,
+    "hizb": 33
+  },
+  {
+    "page": 324,
+    "juz": 17,
+    "hizbQuarter": 130,
+    "hizb": 33
+  },
+  {
+    "page": 326,
+    "juz": 17,
+    "hizbQuarter": 131,
+    "hizb": 33
+  },
+  {
+    "page": 329,
+    "juz": 17,
+    "hizbQuarter": 132,
+    "hizb": 33
+  },
+  {
+    "page": 332,
+    "juz": 17,
+    "hizbQuarter": 133,
+    "hizb": 34
+  },
+  {
+    "page": 334,
+    "juz": 17,
+    "hizbQuarter": 134,
+    "hizb": 34
+  },
+  {
+    "page": 336,
+    "juz": 17,
+    "hizbQuarter": 135,
+    "hizb": 34
+  },
+  {
+    "page": 339,
+    "juz": 17,
+    "hizbQuarter": 136,
+    "hizb": 34
+  },
+  {
+    "page": 342,
+    "juz": 18,
+    "hizbQuarter": 137,
+    "hizb": 35
+  },
+  {
+    "page": 344,
+    "juz": 18,
+    "hizbQuarter": 138,
+    "hizb": 35
+  },
+  {
+    "page": 347,
+    "juz": 18,
+    "hizbQuarter": 139,
+    "hizb": 35
+  },
+  {
+    "page": 350,
+    "juz": 18,
+    "hizbQuarter": 140,
+    "hizb": 35
+  },
+  {
+    "page": 352,
+    "juz": 18,
+    "hizbQuarter": 141,
+    "hizb": 36
+  },
+  {
+    "page": 354,
+    "juz": 18,
+    "hizbQuarter": 142,
+    "hizb": 36
+  },
+  {
+    "page": 356,
+    "juz": 18,
+    "hizbQuarter": 143,
+    "hizb": 36
+  },
+  {
+    "page": 359,
+    "juz": 18,
+    "hizbQuarter": 144,
+    "hizb": 36
+  },
+  {
+    "page": 362,
+    "juz": 19,
+    "hizbQuarter": 145,
+    "hizb": 37
+  },
+  {
+    "page": 364,
+    "juz": 19,
+    "hizbQuarter": 146,
+    "hizb": 37
+  },
+  {
+    "page": 367,
+    "juz": 19,
+    "hizbQuarter": 147,
+    "hizb": 37
+  },
+  {
+    "page": 369,
+    "juz": 19,
+    "hizbQuarter": 148,
+    "hizb": 37
+  },
+  {
+    "page": 371,
+    "juz": 19,
+    "hizbQuarter": 149,
+    "hizb": 38
+  },
+  {
+    "page": 374,
+    "juz": 19,
+    "hizbQuarter": 150,
+    "hizb": 38
+  },
+  {
+    "page": 377,
+    "juz": 19,
+    "hizbQuarter": 151,
+    "hizb": 38
+  },
+  {
+    "page": 379,
+    "juz": 19,
+    "hizbQuarter": 152,
+    "hizb": 38
+  },
+  {
+    "page": 382,
+    "juz": 20,
+    "hizbQuarter": 153,
+    "hizb": 39
+  },
+  {
+    "page": 384,
+    "juz": 20,
+    "hizbQuarter": 154,
+    "hizb": 39
+  },
+  {
+    "page": 386,
+    "juz": 20,
+    "hizbQuarter": 155,
+    "hizb": 39
+  },
+  {
+    "page": 389,
+    "juz": 20,
+    "hizbQuarter": 156,
+    "hizb": 39
+  },
+  {
+    "page": 392,
+    "juz": 20,
+    "hizbQuarter": 157,
+    "hizb": 40
+  },
+  {
+    "page": 394,
+    "juz": 20,
+    "hizbQuarter": 158,
+    "hizb": 40
+  },
+  {
+    "page": 396,
+    "juz": 20,
+    "hizbQuarter": 159,
+    "hizb": 40
+  },
+  {
+    "page": 399,
+    "juz": 20,
+    "hizbQuarter": 160,
+    "hizb": 40
+  },
+  {
+    "page": 402,
+    "juz": 21,
+    "hizbQuarter": 161,
+    "hizb": 41
+  },
+  {
+    "page": 404,
+    "juz": 21,
+    "hizbQuarter": 162,
+    "hizb": 41
+  },
+  {
+    "page": 407,
+    "juz": 21,
+    "hizbQuarter": 163,
+    "hizb": 41
+  },
+  {
+    "page": 410,
+    "juz": 21,
+    "hizbQuarter": 164,
+    "hizb": 41
+  },
+  {
+    "page": 413,
+    "juz": 21,
+    "hizbQuarter": 165,
+    "hizb": 42
+  },
+  {
+    "page": 415,
+    "juz": 21,
+    "hizbQuarter": 166,
+    "hizb": 42
+  },
+  {
+    "page": 418,
+    "juz": 21,
+    "hizbQuarter": 167,
+    "hizb": 42
+  },
+  {
+    "page": 420,
+    "juz": 21,
+    "hizbQuarter": 168,
+    "hizb": 42
+  },
+  {
+    "page": 422,
+    "juz": 22,
+    "hizbQuarter": 169,
+    "hizb": 43
+  },
+  {
+    "page": 425,
+    "juz": 22,
+    "hizbQuarter": 170,
+    "hizb": 43
+  },
+  {
+    "page": 426,
+    "juz": 22,
+    "hizbQuarter": 171,
+    "hizb": 43
+  },
+  {
+    "page": 429,
+    "juz": 22,
+    "hizbQuarter": 172,
+    "hizb": 43
+  },
+  {
+    "page": 431,
+    "juz": 22,
+    "hizbQuarter": 173,
+    "hizb": 44
+  },
+  {
+    "page": 433,
+    "juz": 22,
+    "hizbQuarter": 174,
+    "hizb": 44
+  },
+  {
+    "page": 436,
+    "juz": 22,
+    "hizbQuarter": 175,
+    "hizb": 44
+  },
+  {
+    "page": 439,
+    "juz": 22,
+    "hizbQuarter": 176,
+    "hizb": 44
+  },
+  {
+    "page": 442,
+    "juz": 23,
+    "hizbQuarter": 177,
+    "hizb": 45
+  },
+  {
+    "page": 444,
+    "juz": 23,
+    "hizbQuarter": 178,
+    "hizb": 45
+  },
+  {
+    "page": 446,
+    "juz": 23,
+    "hizbQuarter": 179,
+    "hizb": 45
+  },
+  {
+    "page": 449,
+    "juz": 23,
+    "hizbQuarter": 180,
+    "hizb": 45
+  },
+  {
+    "page": 451,
+    "juz": 23,
+    "hizbQuarter": 181,
+    "hizb": 46
+  },
+  {
+    "page": 454,
+    "juz": 23,
+    "hizbQuarter": 182,
+    "hizb": 46
+  },
+  {
+    "page": 456,
+    "juz": 23,
+    "hizbQuarter": 183,
+    "hizb": 46
+  },
+  {
+    "page": 459,
+    "juz": 23,
+    "hizbQuarter": 184,
+    "hizb": 46
+  },
+  {
+    "page": 462,
+    "juz": 24,
+    "hizbQuarter": 185,
+    "hizb": 47
+  },
+  {
+    "page": 464,
+    "juz": 24,
+    "hizbQuarter": 186,
+    "hizb": 47
+  },
+  {
+    "page": 467,
+    "juz": 24,
+    "hizbQuarter": 187,
+    "hizb": 47
+  },
+  {
+    "page": 469,
+    "juz": 24,
+    "hizbQuarter": 188,
+    "hizb": 47
+  },
+  {
+    "page": 472,
+    "juz": 24,
+    "hizbQuarter": 189,
+    "hizb": 48
+  },
+  {
+    "page": 474,
+    "juz": 24,
+    "hizbQuarter": 190,
+    "hizb": 48
+  },
+  {
+    "page": 477,
+    "juz": 24,
+    "hizbQuarter": 191,
+    "hizb": 48
+  },
+  {
+    "page": 479,
+    "juz": 24,
+    "hizbQuarter": 192,
+    "hizb": 48
+  },
+  {
+    "page": 482,
+    "juz": 25,
+    "hizbQuarter": 193,
+    "hizb": 49
+  },
+  {
+    "page": 484,
+    "juz": 25,
+    "hizbQuarter": 194,
+    "hizb": 49
+  },
+  {
+    "page": 486,
+    "juz": 25,
+    "hizbQuarter": 195,
+    "hizb": 49
+  },
+  {
+    "page": 488,
+    "juz": 25,
+    "hizbQuarter": 196,
+    "hizb": 49
+  },
+  {
+    "page": 491,
+    "juz": 25,
+    "hizbQuarter": 197,
+    "hizb": 50
+  },
+  {
+    "page": 493,
+    "juz": 25,
+    "hizbQuarter": 198,
+    "hizb": 50
+  },
+  {
+    "page": 496,
+    "juz": 25,
+    "hizbQuarter": 199,
+    "hizb": 50
+  },
+  {
+    "page": 499,
+    "juz": 25,
+    "hizbQuarter": 200,
+    "hizb": 50
+  },
+  {
+    "page": 502,
+    "juz": 26,
+    "hizbQuarter": 201,
+    "hizb": 51
+  },
+  {
+    "page": 505,
+    "juz": 26,
+    "hizbQuarter": 202,
+    "hizb": 51
+  },
+  {
+    "page": 507,
+    "juz": 26,
+    "hizbQuarter": 203,
+    "hizb": 51
+  },
+  {
+    "page": 510,
+    "juz": 26,
+    "hizbQuarter": 204,
+    "hizb": 51
+  },
+  {
+    "page": 513,
+    "juz": 26,
+    "hizbQuarter": 205,
+    "hizb": 52
+  },
+  {
+    "page": 515,
+    "juz": 26,
+    "hizbQuarter": 206,
+    "hizb": 52
+  },
+  {
+    "page": 517,
+    "juz": 26,
+    "hizbQuarter": 207,
+    "hizb": 52
+  },
+  {
+    "page": 519,
+    "juz": 26,
+    "hizbQuarter": 208,
+    "hizb": 52
+  },
+  {
+    "page": 522,
+    "juz": 27,
+    "hizbQuarter": 209,
+    "hizb": 53
+  },
+  {
+    "page": 524,
+    "juz": 27,
+    "hizbQuarter": 210,
+    "hizb": 53
+  },
+  {
+    "page": 526,
+    "juz": 27,
+    "hizbQuarter": 211,
+    "hizb": 53
+  },
+  {
+    "page": 529,
+    "juz": 27,
+    "hizbQuarter": 212,
+    "hizb": 53
+  },
+  {
+    "page": 531,
+    "juz": 27,
+    "hizbQuarter": 213,
+    "hizb": 54
+  },
+  {
+    "page": 534,
+    "juz": 27,
+    "hizbQuarter": 214,
+    "hizb": 54
+  },
+  {
+    "page": 536,
+    "juz": 27,
+    "hizbQuarter": 215,
+    "hizb": 54
+  },
+  {
+    "page": 539,
+    "juz": 27,
+    "hizbQuarter": 216,
+    "hizb": 54
+  },
+  {
+    "page": 542,
+    "juz": 28,
+    "hizbQuarter": 217,
+    "hizb": 55
+  },
+  {
+    "page": 544,
+    "juz": 28,
+    "hizbQuarter": 218,
+    "hizb": 55
+  },
+  {
+    "page": 547,
+    "juz": 28,
+    "hizbQuarter": 219,
+    "hizb": 55
+  },
+  {
+    "page": 550,
+    "juz": 28,
+    "hizbQuarter": 220,
+    "hizb": 55
+  },
+  {
+    "page": 553,
+    "juz": 28,
+    "hizbQuarter": 221,
+    "hizb": 56
+  },
+  {
+    "page": 554,
+    "juz": 28,
+    "hizbQuarter": 222,
+    "hizb": 56
+  },
+  {
+    "page": 558,
+    "juz": 28,
+    "hizbQuarter": 223,
+    "hizb": 56
+  },
+  {
+    "page": 560,
+    "juz": 28,
+    "hizbQuarter": 224,
+    "hizb": 56
+  },
+  {
+    "page": 562,
+    "juz": 29,
+    "hizbQuarter": 225,
+    "hizb": 57
+  },
+  {
+    "page": 564,
+    "juz": 29,
+    "hizbQuarter": 226,
+    "hizb": 57
+  },
+  {
+    "page": 566,
+    "juz": 29,
+    "hizbQuarter": 227,
+    "hizb": 57
+  },
+  {
+    "page": 569,
+    "juz": 29,
+    "hizbQuarter": 228,
+    "hizb": 57
+  },
+  {
+    "page": 572,
+    "juz": 29,
+    "hizbQuarter": 229,
+    "hizb": 58
+  },
+  {
+    "page": 575,
+    "juz": 29,
+    "hizbQuarter": 230,
+    "hizb": 58
+  },
+  {
+    "page": 577,
+    "juz": 29,
+    "hizbQuarter": 231,
+    "hizb": 58
+  },
+  {
+    "page": 579,
+    "juz": 29,
+    "hizbQuarter": 232,
+    "hizb": 58
+  },
+  {
+    "page": 582,
+    "juz": 30,
+    "hizbQuarter": 233,
+    "hizb": 59
+  },
+  {
+    "page": 585,
+    "juz": 30,
+    "hizbQuarter": 234,
+    "hizb": 59
+  },
+  {
+    "page": 587,
+    "juz": 30,
+    "hizbQuarter": 235,
+    "hizb": 59
+  },
+  {
+    "page": 589,
+    "juz": 30,
+    "hizbQuarter": 236,
+    "hizb": 59
+  },
+  {
+    "page": 591,
+    "juz": 30,
+    "hizbQuarter": 237,
+    "hizb": 60
+  },
+  {
+    "page": 594,
+    "juz": 30,
+    "hizbQuarter": 238,
+    "hizb": 60
+  },
+  {
+    "page": 596,
+    "juz": 30,
+    "hizbQuarter": 239,
+    "hizb": 60
+  },
+  {
+    "page": 600,
+    "juz": 30,
+    "hizbQuarter": 240,
+    "hizb": 60
+  }
+]

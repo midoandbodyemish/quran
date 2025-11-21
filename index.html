@@ -588,6 +588,27 @@
     .parts-index-hizb-title {
       color: #ff1c1c;
     }
+    /* Force the quarter notification to always center in viewport */
+    #quarter-notification {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      margin: 0 !important;
+      z-index: 99999 !important;
+      pointer-events: auto !important;
+    }
+    /* Top-level overlay to host notifications so they are not affected by transformed ancestors */
+    #top-overlay {
+      position: fixed !important;
+      inset: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      pointer-events: none !important;
+      z-index: 99998 !important;
+    }
+    /* On-screen nav buttons removed — navigation via touch swipe and keyboard remains */
   </style>
 </head>
 <body>
@@ -648,6 +669,13 @@
     <img id="page-image" alt="صفحة القرآن" loading="lazy">
   </div>
 
+  <!-- on-screen nav buttons removed: navigation via touch swipe and keyboard remains -->
+
+  <!-- إشعار بداية الحزب/الربع (مركزي، افتراضي أسود/أبيض) -->
+  <div id="quarter-notification" style="display:none;position:fixed;top:50vh;left:50vw;transform:translate(-50%,-50%) scale(0.98);background:#000;padding:12px 18px;border-radius:10px;box-shadow:0 12px 28px rgba(0,0,0,0.35);z-index:2000;transition:opacity .35s,transform .35s;opacity:0;color:#fff;pointer-events:auto;">
+    <div id="quarter-text" style="color:#fff;font-weight:700;text-align:center"></div>
+  </div>
+
   <div id="floating-menu">
     <button id="menu-toggle-btn" data-micron="squeeze"><i class="fas fa-bars"></i></button>
     <div id="menu-icons" style="display: none;">
@@ -671,22 +699,219 @@
   // تسجيل Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').then(registration => {
+      // register with explicit relative scope; provide clearer error guidance
+      navigator.serviceWorker.register('sw.js', { scope: './' }).then(registration => {
         console.log('Service Worker registered:', registration);
       }).catch(error => {
         console.error('Service Worker registration failed:', error);
+        if (location.protocol === 'file:') {
+          console.warn('Service Worker requires http(s). Run a local server (e.g. `python -m http.server 8000`).');
+        } else {
+          // show a brief on-page banner advising to check console/network
+          try {
+            const note = document.createElement('div');
+            note.style.cssText = 'position:fixed;bottom:12px;left:12px;background:#ffcc00;color:#000;padding:8px 12px;border-radius:6px;z-index:99999;font-weight:600';
+            note.textContent = 'Service Worker registration failed — راجع Console أو تشغيل الخادم المحلي.';
+            document.body.appendChild(note);
+            setTimeout(() => note.remove(), 8000);
+          } catch (e) {}
+        }
       });
     });
   }
+  /** شاشة تحميل وتنزيل كل الموارد للعمل دون إنترنت */
+  const OFFLINE_FLAG = 'offlineReady';
+  const CACHE_NAME = 'quran-app-v2';
+  const IMAGE_COUNT = 604;
+  const isFileProtocol = location.protocol === 'file:';
+  const coreResourcesForPage = [
+    'index.html',
+    'adea.html',
+    'info.html',
+    // الموارد الخارجية (ستخزن غالبًا كـ opaque)
+    'https://unpkg.com/webkul-micron@1.1.6/dist/css/micron.min.css',
+    'https://unpkg.com/webkul-micron@1.1.6/dist/script/micron.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js',
+    'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js',
+    'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+  ];
 
-  // تحميل الصور مسبقًا لتحسين الأداء
-  function preloadImages() {
-    for (let i = 1; i <= 604; i++) {
-      const img = new Image();
-      img.src = `/quran/${i}.png`;
-    }
+  // إضافة عنصر الواجهة للشاشة
+  (function createLoadingOverlay() {
+    if (document.getElementById('loading-overlay')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'loading-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:#ffffff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding:20px;text-align:center';
+    overlay.innerHTML = `
+      <div style="max-width:420px;width:100%">
+        <h2 style="margin-bottom:8px">تحميل الموارد للعمل دون إنترنت</h2>
+        <div id="loading-status" style="margin-bottom:8px">جارٍ التحضير...</div>
+        <div style="width:100%;height:12px;background:#eee;border-radius:8px;overflow:hidden;margin-bottom:8px">
+          <div id="loading-bar" style="height:100%;width:0%;background:#4CAF50;transition:width 200ms"></div>
+        </div>
+        <div id="loading-progress" style="margin-bottom:12px">0%</div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button id="start-offline-btn" style="padding:10px 16px;background:#4CAF50;border:none;color:#fff;border-radius:8px;cursor:pointer">ابدأ التنزيل الآن</button>
+          <button id="cancel-offline-btn" style="padding:10px 16px;background:#ccc;border:none;color:#222;border-radius:8px;cursor:pointer">إلغاء</button>
+        </div>
+        <p id="loading-note" style="margin-top:12px;color:#666;font-size:13px">سيتم تنزيل الصور والملفات الضرورية لتشغيل التطبيق دون اتصال.</p>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+  })();
+
+  // IndexedDB helpers (نفس منطق sw.js لكن في الصفحة)
+  function saveToIndexedDB(data) {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('QuranDB', 1);
+      request.onupgradeneeded = event => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains('quran')) db.createObjectStore('quran', { keyPath: 'id' });
+      };
+      request.onsuccess = event => {
+        const db = event.target.result;
+        const transaction = db.transaction(['quran'], 'readwrite');
+        const store = transaction.objectStore('quran');
+        try { store.put({ id: 'quranData', data }); } catch (e) {}
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+      };
+      request.onerror = () => reject(request.error);
+    });
   }
-  window.addEventListener('load', preloadImages);
+
+  async function cacheResource(cache, url) {
+    try {
+      // على ملف:// لا نحاول استخدام fetch لأن المتصفح يمنع ذلك
+      if (isFileProtocol) return false;
+      // استخدم no-cors للموارد الخارجية لكي لا يفشل التخزين بسبب CORS
+      const sameOrigin = new URL(url, location.href).origin === location.origin;
+      const req = new Request(url, { mode: sameOrigin ? 'same-origin' : 'no-cors' });
+      const res = await fetch(req);
+      if (res && (res.ok || res.type === 'opaque')) {
+        try { await cache.put(req, res.clone()); } catch (e) { /* بعض الاستجابات opaque قد ترمي في بعض البيئات */ }
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+    return false;
+  }
+
+  async function fullOfflineInstall(onProgress) {
+    if (isFileProtocol) throw new Error('file-protocol');
+    const cache = await caches.open(CACHE_NAME);
+    const resources = [];
+    resources.push(...coreResourcesForPage);
+    for (let i = 1; i <= IMAGE_COUNT; i++) resources.push(`quran/${i}.png`);
+    // نضيف بيانات الـ API ليتم حفظها لاحقًا
+    const total = resources.length + 1; // +1 للـ API
+    let done = 0;
+
+    const update = () => {
+      done++;
+      const pct = Math.round((done / total) * 100);
+      document.getElementById('loading-bar').style.width = pct + '%';
+      document.getElementById('loading-progress').textContent = pct + '%';
+      document.getElementById('loading-status').textContent = `جاري التحميل (${done}/${total})`;
+      if (onProgress) onProgress(pct, done, total);
+    };
+
+    for (const url of resources) {
+      await cacheResource(cache, url);
+      update();
+    }
+
+    // طلب API وحفظه في IndexedDB
+    try {
+      const apiResp = await fetch('https://api.alquran.cloud/v1/quran/ar');
+      if (apiResp && apiResp.ok) {
+        const data = await apiResp.json();
+        await saveToIndexedDB(data).catch(() => {});
+      }
+    } catch (e) {
+      // تجاهل فشل جلب الـ API
+    }
+    // حفظ ملف الأرباع في localStorage أيضاً
+    try {
+      const qResp = await fetch('quarters.json');
+      if (qResp && qResp.ok) {
+        const qData = await qResp.json();
+        try { localStorage.setItem('quartersData', JSON.stringify(qData)); } catch (e) {}
+      }
+    } catch (e) {
+      // تجاهل إذا لم يتوفر
+    }
+    update();
+
+    // وسم جاهزية التطبيق للعمل أوفلاين
+    localStorage.setItem(OFFLINE_FLAG, '1');
+  }
+
+  // تحكم واجهة المستخدم للتحميل
+  (function hookLoadingButtons() {
+    const overlay = document.getElementById('loading-overlay');
+    const startBtn = document.getElementById('start-offline-btn');
+    const cancelBtn = document.getElementById('cancel-offline-btn');
+    const note = document.getElementById('loading-note');
+
+    function hideOverlay() { if (overlay) overlay.style.display = 'none'; }
+    function showOverlay() { if (overlay) overlay.style.display = 'flex'; }
+
+    if (isFileProtocol) {
+      // عند فتح الملف مباشرةً عبر file:// لا يمكن استخدام fetch/caches/Service Worker بشكل صحيح
+      document.getElementById('loading-status').textContent = 'تم فتح الملف محليًا. رجاءً شغّل خادماً محلياً (http://localhost) لتفعيل التحميل والأوفلاين.';
+      note.innerHTML = '<b>تشغيل خادم محلي (راجع الأوامر أدناه في PowerShell)</b><br>1) Python: <code>python -m http.server 8000</code><br>2) Node: <code>npx http-server . -p 8000</code><br>أو استخدم ملحق Live Server في VSCode.';
+      startBtn.disabled = true;
+      return;
+    }
+
+    startBtn.addEventListener('click', async () => {
+      if (!navigator.onLine) {
+        document.getElementById('loading-status').textContent = 'لا يوجد اتصال. اتصل بالإنترنت وحاول مرة أخرى.';
+        return;
+      }
+      startBtn.disabled = true;
+      cancelBtn.disabled = true;
+      document.getElementById('loading-status').textContent = 'بدء التحميل...';
+      try {
+        await fullOfflineInstall((pct) => {
+          // يمكن هنا إضافة تحديثات إضافية إذا رغبنا
+        });
+        document.getElementById('loading-status').textContent = 'تم تنزيل كل الموارد. التطبيق جاهز للعمل دون إنترنت.';
+        setTimeout(hideOverlay, 800);
+      } catch (e) {
+        if (e && e.message === 'file-protocol') {
+          document.getElementById('loading-status').textContent = 'لا يمكن التنزيل عند فتح الملف محليًا. شغّل خادماً محلياً.';
+        } else {
+          document.getElementById('loading-status').textContent = 'فشل أثناء التنزيل. حاول مرة أخرى.';
+          startBtn.disabled = false;
+          cancelBtn.disabled = false;
+        }
+      }
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      // إخفاء الشاشة إذا لم يرغب المستخدم
+      overlay.style.display = 'none';
+    });
+
+    // عند التحميل: إذا تم التثبيت سابقًا نُخفي الواجهة، وإلا نُظهرها تلقائيًا (إذا متصل)
+    window.addEventListener('load', () => {
+      if (localStorage.getItem(OFFLINE_FLAG)) {
+        hideOverlay();
+      } else {
+        showOverlay();
+        // ابدأ تلقائيًا إذا كان متصلاً
+        if (navigator.onLine) {
+          startBtn.click();
+        } else {
+          document.getElementById('loading-status').textContent = 'لا يوجد اتصال. اضغط "تنزيل الآن" عند الاتصال.';
+        }
+      }
+    });
+  })();
 
   let currentPage = localStorage.getItem('lastPage') ? parseInt(localStorage.getItem('lastPage')) : 1;
   const totalPages = 604;
@@ -717,9 +942,131 @@
     }
   }
 
+  // ---------- أرباع/أحزاب: تحميل بيانات من quarters.json وإظهار إشعار ----------
+  let quartersData = null;
+  async function loadQuartersData() {
+    if (quartersData) return quartersData;
+    const cached = localStorage.getItem('quartersData');
+    if (cached) {
+      try {
+        quartersData = JSON.parse(cached);
+        return quartersData;
+      } catch (e) {
+        localStorage.removeItem('quartersData');
+      }
+    }
+    try {
+      const res = await fetch('quarters.json');
+      if (!res.ok) throw new Error('فشل تحميل quarters.json');
+      const data = await res.json();
+      quartersData = data;
+      try { localStorage.setItem('quartersData', JSON.stringify(data)); } catch (e) {}
+      return quartersData;
+    } catch (e) {
+      console.error('تعذر تحميل quarters.json:', e);
+      return [];
+    }
+  }
+
+  function findQuarterByPage(page) {
+    if (!quartersData) return null;
+    // quarters.json is an array of objects with a "page" property
+    return quartersData.find(q => Number(q.page) === Number(page)) || null;
+  }
+
+  function showQuarterNotification(message) {
+    const notif = document.getElementById('quarter-notification');
+    const text = document.getElementById('quarter-text');
+    if (!notif || !text) return;
+    text.textContent = message;
+    // apply user-selected background color if set
+    try {
+      const bg = localStorage.getItem('quarterNotifColor');
+      if (bg) notif.style.background = bg;
+      else notif.style.background = '#000'; // default black
+    } catch (e) {}
+    // make text white (black/white scheme)
+    notif.style.color = '#fff';
+    const qText = document.getElementById('quarter-text');
+    if (qText) qText.style.color = '#fff';
+    // center in viewport using viewport units (more reliable across browsers)
+    notif.style.position = 'fixed';
+    notif.style.top = '50vh';
+    notif.style.left = '50vw';
+    notif.style.transform = 'translate(-50%, -50%) scale(1)';
+    notif.style.display = 'block';
+    notif.style.opacity = '1';
+    // play sound if enabled
+    try {
+      const soundEnabled = localStorage.getItem('quarterSoundEnabled') === '1';
+      if (soundEnabled) playNotificationSound();
+    } catch (e) {}
+    // عرض لمدة 4 ثواني ثم الاختفاء
+    setTimeout(() => {
+      notif.style.opacity = '0';
+      notif.style.transform = 'translate(-50%, -50%) scale(0.98)';
+      setTimeout(() => (notif.style.display = 'none'), 450);
+    }, 4000);
+  }
+
+  // WebAudio beep (no external file needed)
+  function playNotificationSound() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = 880; // A5
+      g.gain.value = 0.0001;
+      o.connect(g);
+      g.connect(ctx.destination);
+      // ramp up and down for short pleasant beep
+      g.gain.exponentialRampToValueAtTime(0.05, ctx.currentTime + 0.01);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+      setTimeout(() => {
+        try { o.stop(); ctx.close(); } catch (e) {}
+      }, 200);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  // بعد تحديث الصفحة عرض إشعار الربع/الحزب إن وُجد
+  const originalUpdatePage = updatePage;
+  updatePage = async function () {
+    originalUpdatePage();
+    try {
+      await loadQuartersData();
+      const q = findQuarterByPage(currentPage);
+      if (q) {
+        const quarterIndex = ((Number(q.hizbQuarter) - 1) % 4) + 1;
+        let label = '';
+        if (quarterIndex === 1) label = `الحزب ${q.hizb} من الجزء ${q.juz}`;
+        else if (quarterIndex === 2) label = `ربع الحزب ${q.hizb} من الجزء ${q.juz}`;
+        else if (quarterIndex === 3) label = `نصف الحزب ${q.hizb} من الجزء ${q.juz}`;
+        else if (quarterIndex === 4) label = `ثلاثة أرباع الحزب ${q.hizb} من الجزء ${q.juz}`;
+        showQuarterNotification(label);
+      }
+    } catch (e) {
+      // لا تفشل الواجهة إن تعذر تحميل البيانات
+    }
+  };
+
   function flipPage(direction) {
     if (isSwiping) return; // منع تكرار التمرير
     isSwiping = true;
+
+    // احترم وضع تبديل الأسهم المستخدم (swapArrows)
+    try {
+      const swapped = localStorage.getItem('swapArrows') === '1';
+      if (swapped) {
+        if (direction === 'left') direction = 'right';
+        else if (direction === 'right') direction = 'left';
+      }
+    } catch (e) {}
 
     if (direction === 'right' && currentPage < totalPages) {
       currentPage++;
@@ -992,6 +1339,56 @@
         changecolor(selectedColor);
         closePanel('color-panel', 'close-color');
       });
+
+      // إضافة إعدادات إشعار الرباع/الحزب (أضف مرة واحدة فقط)
+      let notifSettings = document.getElementById('notif-settings');
+      if (!notifSettings) {
+        notifSettings = document.createElement('div');
+        notifSettings.id = 'notif-settings';
+        notifSettings.style.marginTop = '18px';
+        notifSettings.style.textAlign = 'right';
+        notifSettings.innerHTML = `
+          <div style="margin-bottom:8px;font-weight:700">إعدادات الإشعار</div>
+          <label style="display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:8px">
+            <span>تفعيل صوت الإشعار</span>
+            <input type="checkbox" id="notif-sound-toggle">
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:8px">
+            <span>لون خلفية الإشعار</span>
+            <input type="color" id="notif-bg-color" value="#000000">
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;justify-content:flex-end">
+            <span>تبديل وظائف الأسهم</span>
+            <input type="checkbox" id="swap-arrows-toggle">
+          </label>
+        `;
+        colorOptions.appendChild(notifSettings);
+        // Initialize values and event listeners for the newly-created controls
+        try {
+          const notifToggle = document.getElementById('notif-sound-toggle');
+          const notifColorInput = document.getElementById('notif-bg-color');
+          if (notifToggle) {
+            notifToggle.checked = localStorage.getItem('quarterSoundEnabled') === '1';
+            notifToggle.addEventListener('change', () => {
+              localStorage.setItem('quarterSoundEnabled', notifToggle.checked ? '1' : '0');
+            });
+          }
+          if (notifColorInput) {
+            notifColorInput.value = localStorage.getItem('quarterNotifColor') || '#000000';
+            notifColorInput.addEventListener('input', () => {
+              localStorage.setItem('quarterNotifColor', notifColorInput.value);
+            });
+          }
+          const swapToggleInner = document.getElementById('swap-arrows-toggle');
+          if (swapToggleInner) {
+            swapToggleInner.checked = localStorage.getItem('swapArrows') === '1';
+            swapToggleInner.addEventListener('change', () => {
+              localStorage.setItem('swapArrows', swapToggleInner.checked ? '1' : '0');
+              try { refreshNavIcons(); } catch (e) {}
+            });
+          }
+        } catch (e) {}
+      }
 
       showPanel('color-panel', 'close-color');
     }
@@ -1424,6 +1821,44 @@
       }
     }
 
+    // Preload quarters.json so notifications are ready
+    try {
+      loadQuartersData().then(qd => {
+        console.log('quarters.json preloaded, entries:', (qd && qd.length) || 0);
+      }).catch(err => console.warn('quarters.json preload failed', err));
+    } catch (e) {}
+
+    // Ensure the notification element is a direct child of body and force styles (avoid transformed ancestors)
+    try {
+      const notif = document.getElementById('quarter-notification');
+      // create a top-level overlay attached to documentElement to avoid any transformed ancestors
+      let topOverlay = document.getElementById('top-overlay');
+      if (!topOverlay) {
+        try {
+          topOverlay = document.createElement('div');
+          topOverlay.id = 'top-overlay';
+          // append to documentElement (html) so it's truly top-level
+          document.documentElement.appendChild(topOverlay);
+        } catch (e) {
+          // fallback to body
+          topOverlay = document.body;
+        }
+      }
+      if (notif && topOverlay && notif.parentNode !== topOverlay) {
+        topOverlay.appendChild(notif);
+      }
+      // apply inline fallbacks to ensure centering inside overlay
+      if (notif) {
+        notif.style.position = 'relative';
+        notif.style.top = '';
+        notif.style.left = '';
+        notif.style.transform = 'translate(-50%, -50%)';
+        notif.style.margin = '0';
+        notif.style.zIndex = '99999';
+        notif.style.pointerEvents = 'auto';
+      }
+    } catch (e) {}
+
     const pageContainer = document.getElementById('page-container');
     const floatingMenu = document.getElementById('floating-menu');
     const menuToggleBtn = document.getElementById('menu-toggle-btn');
@@ -1507,6 +1942,25 @@
         }
       }, { passive: false });
     }
+
+    // Keyboard navigation for desktop: Arrow keys, PageUp/PageDown, Home/End
+    document.addEventListener('keydown', (e) => {
+      const active = document.activeElement;
+      const tag = active && active.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || active?.isContentEditable) return;
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') {
+        e.preventDefault();
+        // استخدم flipPage حتى تأخذ في الحسبان swapArrows
+        flipPage('right');
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        flipPage('left');
+      } else if (e.key === 'Home') {
+        e.preventDefault(); currentPage = 1; updatePage();
+      } else if (e.key === 'End') {
+        e.preventDefault(); currentPage = totalPages; updatePage();
+      }
+    });
 
     updatePage();
 
@@ -1631,11 +2085,63 @@
       colorBtn.addEventListener('dblclick', () => closePanel('color-panel', 'close-color'));
     }
 
+    // On-screen nav buttons removed — clicks handled via touch swipe and keyboard
+
     const closeColor = document.getElementById('close-color');
     if (closeColor) {
       closeColor.addEventListener('click', () => closePanel('color-panel', 'close-color'));
     }
+
+    // initialise notification settings UI and values
+    try {
+      const notifToggle = document.getElementById('notif-sound-toggle');
+      const notifColorInput = document.getElementById('notif-bg-color');
+      if (notifToggle) {
+        notifToggle.checked = localStorage.getItem('quarterSoundEnabled') === '1';
+        notifToggle.addEventListener('change', () => {
+          localStorage.setItem('quarterSoundEnabled', notifToggle.checked ? '1' : '0');
+        });
+      }
+      if (notifColorInput) {
+        const saved = localStorage.getItem('quarterNotifColor') || '#000000';
+        notifColorInput.value = saved;
+        notifColorInput.addEventListener('input', () => {
+          localStorage.setItem('quarterNotifColor', notifColorInput.value);
+        });
+      }
+      // swap arrows toggle
+      const swapToggle = document.getElementById('swap-arrows-toggle');
+      if (swapToggle) {
+        swapToggle.checked = localStorage.getItem('swapArrows') === '1';
+        swapToggle.addEventListener('change', () => {
+          localStorage.setItem('swapArrows', swapToggle.checked ? '1' : '0');
+          try { refreshNavIcons(); } catch (e) {}
+        });
+      }
+    } catch (e) {}
+    // Ensure nav icons reflect swapArrows on load
+    try { refreshNavIcons(); } catch (e) {}
   });
+
+  // تحديث أيقونات الأزرار المرئية بحسب إعداد تبديل الأسهم
+  function refreshNavIcons() {
+    const navLeft = document.getElementById('nav-left-btn');
+    const navRight = document.getElementById('nav-right-btn');
+    const swapped = localStorage.getItem('swapArrows') === '1';
+    if (navLeft && navRight) {
+      if (swapped) {
+        navLeft.innerText = '▶';
+        navLeft.setAttribute('aria-label', 'صفحة تالية');
+        navRight.innerText = '◀';
+        navRight.setAttribute('aria-label', 'صفحة سابقة');
+      } else {
+        navLeft.innerText = '◀';
+        navLeft.setAttribute('aria-label', 'صفحة سابقة');
+        navRight.innerText = '▶';
+        navRight.setAttribute('aria-label', 'صفحة تالية');
+      }
+    }
+  }
 </script>
 </body>
 </html>
