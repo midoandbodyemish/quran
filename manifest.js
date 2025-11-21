@@ -5,7 +5,7 @@ const manifest = {
   name: "تطبيق القرآن الكريم",
   short_name: "القرآن",
   lang: "ar",
-  start_url: "/index.html?source=pwa",
+  start_url: "/index.html",
   scope: "/",
   display: "standalone",
   orientation: "portrait",
@@ -28,5 +28,6 @@ const manifest = {
   ],
   prefer_related_applications: false
 };
+
 
 export default manifest;
