@@ -781,6 +781,39 @@
     });
   }
 
+  // طلب التخزين الدائم إن أمكن لتحسين بقاء الكاش/IndexedDB
+  async function requestPersistentStorage() {
+    try {
+      if (navigator.storage && navigator.storage.persist) {
+        const granted = await navigator.storage.persist();
+        console.log('persistent storage granted:', granted);
+        return granted;
+      }
+    } catch (e) {
+      console.warn('requestPersistentStorage failed', e);
+    }
+    return false;
+  }
+
+  // عرض تقدير الاستخدام/الحد الأقصى للمساحة في واجهة التحميل
+  async function updateStorageEstimate() {
+    try {
+      if (navigator.storage && navigator.storage.estimate) {
+        const estimate = await navigator.storage.estimate();
+        const used = estimate.usage || 0;
+        const quota = estimate.quota || 0;
+        const usedMB = (used / 1024 / 1024).toFixed(2);
+        const quotaMB = (quota / 1024 / 1024).toFixed(2);
+        const noteEl = document.getElementById('loading-note');
+        if (noteEl) noteEl.innerHTML = `المساحة المستخدمة: ${usedMB} MB من ${quotaMB} MB`;
+        return estimate;
+      }
+    } catch (e) {
+      console.warn('updateStorageEstimate failed', e);
+    }
+    return null;
+  }
+
   async function cacheResource(cache, url) {
     try {
       // على ملف:// لا نحاول استخدام fetch لأن المتصفح يمنع ذلك
@@ -823,15 +856,15 @@
       update();
     }
 
-    // طلب API وحفظه في IndexedDB
+    // طلب بيانات الـ API من الملف المحلي `ar.json` وحفظه في IndexedDB
     try {
-      const apiResp = await fetch('https://api.alquran.cloud/v1/quran/ar');
+      const apiResp = await fetch('ar.json');
       if (apiResp && apiResp.ok) {
         const data = await apiResp.json();
         await saveToIndexedDB(data).catch(() => {});
       }
     } catch (e) {
-      // تجاهل فشل جلب الـ API
+      // تجاهل فشل جلب الـ API المحلي
     }
     // حفظ ملف الأرباع في localStorage أيضاً
     try {
@@ -874,10 +907,17 @@
       }
       startBtn.disabled = true;
       cancelBtn.disabled = true;
+      // اطلب التخزين الدائم إن أمكن ثم حدث معلومات المساحة
+      document.getElementById('loading-status').textContent = 'طلب صلاحية التخزين...';
+      const persisted = await requestPersistentStorage().catch(() => false);
+      document.getElementById('loading-status').textContent = persisted ? 'تم طلب التخزين الدائم (إن أمكن)' : 'التخزين الدائم غير متوفر أو مرفوض';
+      await updateStorageEstimate().catch(() => {});
+      // ابدأ التحميل الفعلي
       document.getElementById('loading-status').textContent = 'بدء التحميل...';
       try {
         await fullOfflineInstall((pct) => {
-          // يمكن هنا إضافة تحديثات إضافية إذا رغبنا
+          // تحديث تقدير المساحة كلما ازداد التقدم
+          updateStorageEstimate().catch(() => {});
         });
         document.getElementById('loading-status').textContent = 'تم تنزيل كل الموارد. التطبيق جاهز للعمل دون إنترنت.';
         setTimeout(hideOverlay, 800);
@@ -1169,7 +1209,7 @@
         return;
       }
 
-      fetch("https://api.alquran.cloud/v1/quran/ar")
+      fetch('ar.json')
         .then(res => {
           if (!res.ok) throw new Error("فشل جلب بيانات السور");
           return res.json();
@@ -1221,7 +1261,7 @@
         return;
       }
 
-      fetch("https://api.alquran.cloud/v1/quran/ar")
+      fetch('ar.json')
         .then(res => {
           if (!res.ok) throw new Error("فشل جلب بيانات الأجزاء");
           return res.json();
@@ -1447,7 +1487,7 @@
         return;
       }
 
-      fetch("https://api.alquran.cloud/v1/quran/ar")
+      fetch('ar.json')
         .then(res => {
           if (!res.ok) throw new Error("فشل جلب البيانات من الـ API");
           return res.json();

@@ -5,6 +5,7 @@ const coreResources = [
   '/',
   '/index.html',
   '/adea.html',
+  '/ar.json',
   '/info.html',
   '/quarters.json',
   // موارد خارجية قد تعيد استجابة opaque (no-cors)
@@ -76,25 +77,27 @@ self.addEventListener('install', event => {
     // تحميل صور (يمكن أن يكون ثقيلًا؛ يتم باستخدام allSettled)
     await cacheResourcesSafely(CACHE_NAME, imageUrls);
 
-    // أثناء التثبيت حاول جلب بيانات الـ API وحفظها في IndexedDB حتى تتوفر أوفلاين
+    // أثناء التثبيت: حاول الحصول على النسخة المحلية `ar.json` وحفظها في IndexedDB
     try {
-      const apiUrl = 'https://api.alquran.cloud/v1/quran/ar';
-      const apiResp = await fetch(apiUrl);
-      if (apiResp && apiResp.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      // ar.json موجود ضمن coreResources، لكن نتأكد ونحاول جلبه مباشرة
+      let arResp = await cache.match('/ar.json') || await cache.match('ar.json');
+      if (!arResp) {
         try {
-          const json = await apiResp.clone().json();
+          arResp = await fetch('/ar.json');
+        } catch (e) { arResp = null; }
+      }
+      if (arResp) {
+        try {
+          const json = await arResp.clone().json();
           await saveToIndexedDB(json).catch(() => {});
-          // خزّن نسخة قابلة للاستجابة في الكاش كنسخة احتياطية
-          const cache = await caches.open(CACHE_NAME);
-          try {
-            await cache.put(apiUrl, new Response(JSON.stringify(json), { headers: { 'Content-Type': 'application/json' } }));
-          } catch (e) { /* ignore cache put errors */ }
+          try { await cache.put('/ar.json', new Response(JSON.stringify(json), { headers: { 'Content-Type': 'application/json' } })); } catch (e) {}
         } catch (e) {
-          // قد يحدث خطأ إن كانت الاستجابة opaque أو غير JSON
+          // ignore parse errors
         }
       }
     } catch (e) {
-      // تجاهل فشل جلب الـ API أثناء التثبيت
+      // ignore
     }
 
     // اقتراح: بعد التنزيل، نقوم بقص الكاش إن كان كبيرًا
@@ -151,8 +154,12 @@ self.addEventListener('fetch', event => {
         // فشل الشبكة → حاول أولاً الحصول على نسخة من الكاش، ثم من IndexedDB
         try {
           const cache = await caches.open(CACHE_NAME);
+          // حاول أولاً العثور على نسخة مخزنة من نفس طلب الـ API
           const cachedResp = await cache.match(req);
           if (cachedResp) return cachedResp;
+          // ثم حاول استخدام النسخة المحلية `ar.json` التي نخزّنها للعمل دون نت
+          const localResp = await cache.match('/ar.json') || await cache.match('ar.json');
+          if (localResp) return localResp;
         } catch (e) {
           // تجاهل أخطاء الكاش
         }
