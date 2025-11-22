@@ -2,8 +2,8 @@
   "name": "تطبيق القرآن الكريم",
   "short_name": "القرآن",
   "lang": "ar",
-  "start_url": "/index.html",
-  "scope": "/",
+  "start_url": "/quran/index.html?source=pwa",
+  "scope": "/quran/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
@@ -12,13 +12,13 @@
   "categories": ["books", "education", "religion"],
   "icons": [
     {
-      "src": "quran2.png",
+      "src": "quran.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "quran1.png",
+      "src": "quran.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -29,10 +29,9 @@
       "name": "الانتقال للصفحة الأخيرة",
       "short_name": "آخر صفحة",
       "description": "يفتح التطبيق عند آخر صفحة قرأتها",
-      "url": "/index.html?last=1",
+      "url": "/quran/index.html?last=1",
       "icons": [{ "src": "quran2.png", "sizes": "192x192" }]
     }
   ],
   "prefer_related_applications": false
 }
-
