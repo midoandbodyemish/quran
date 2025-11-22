@@ -5,8 +5,8 @@ const manifest = {
   name: "تطبيق القرآن الكريم",
   short_name: "القرآن",
   lang: "ar",
-  start_url: "/index.html",
-  scope: "/",
+  start_url: "./index.html?source=pwa",
+  scope: "./",
   display: "standalone",
   orientation: "portrait",
   background_color: "#ffffff",
@@ -22,12 +22,11 @@ const manifest = {
       name: "الانتقال للصفحة الأخيرة",
       short_name: "آخر صفحة",
       description: "يفتح التطبيق عند آخر صفحة قرأتها",
-      url: "/index.html?last=1",
+      url: "./index.html?last=1",
       icons: [{ src: "quran2.png", sizes: "192x192" }]
     }
   ],
   prefer_related_applications: false
 };
-
 
 export default manifest;
