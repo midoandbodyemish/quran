@@ -2263,36 +2263,56 @@
   let deferredPrompt = null;
   const installBtn = document.getElementById('install-btn');
 
+  function showInstallInstructions() {
+    // simple overlay with short instructions (auto-hide)
+    try {
+      const id = 'pwa-install-instructions';
+      if (document.getElementById(id)) return;
+      const box = document.createElement('div');
+      box.id = id;
+      box.style.cssText = 'position:fixed;left:50%;top:16%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:14px 18px;border-radius:8px;z-index:99999;max-width:90%;text-align:center;font-size:14px';
+      box.innerHTML = `لتثبيت التطبيق: اختر قائمة المتصفح → "تثبيت" أو "Install"، أو على أندرويد استخدم الخيار "Add to Home screen". على iOS استخدم زر المشاركة ثم "Add to Home Screen".`;
+      document.body.appendChild(box);
+      setTimeout(() => box.style.opacity = '0.0', 6000);
+      setTimeout(() => { try { box.remove(); } catch (e) {} }, 7000);
+    } catch (e) { console.warn('showInstallInstructions failed', e); }
+  }
+
   window.addEventListener('beforeinstallprompt', (e) => {
     // Prevent the mini-infobar from appearing on mobile
     e.preventDefault();
     deferredPrompt = e;
-    // Show the install button
+    // Show the install button when prompt becomes available
     if (installBtn) installBtn.classList.add('show');
   });
 
-  // If user clicks our install button, show the browser prompt
+  // If user clicks our install button, show the browser prompt or instructions
   if (installBtn) {
     installBtn.addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      installBtn.disabled = true;
-      try {
-        await deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
-        if (choice && choice.outcome === 'accepted') {
-          localStorage.setItem('pwaInstalled', '1');
-        } else {
-          localStorage.setItem('pwaInstallDeclined', Date.now().toString());
+      // If we have the deferred prompt (Chrome/Edge), use it
+      if (deferredPrompt) {
+        installBtn.disabled = true;
+        try {
+          await deferredPrompt.prompt();
+          const choice = await deferredPrompt.userChoice;
+          if (choice && choice.outcome === 'accepted') {
+            localStorage.setItem('pwaInstalled', '1');
+          } else {
+            localStorage.setItem('pwaInstallDeclined', Date.now().toString());
+          }
+        } catch (err) {
+          console.warn('Install prompt failed', err);
         }
-      } catch (err) {
-        console.warn('Install prompt failed', err);
+        deferredPrompt = null;
+        if (installBtn) {
+          installBtn.classList.remove('show');
+          installBtn.disabled = false;
+        }
+        return;
       }
-      // we no longer can use the prompt
-      deferredPrompt = null;
-      if (installBtn) {
-        installBtn.classList.remove('show');
-        installBtn.disabled = false;
-      }
+
+      // Otherwise show friendly instructions (iOS or when prompt not available)
+      showInstallInstructions();
     });
   }
 
@@ -2304,7 +2324,11 @@
   });
 
   // If already installed, hide the button
-  if (localStorage.getItem('pwaInstalled') === '1' && installBtn) {
+  const isAlreadyInstalled = (localStorage.getItem('pwaInstalled') === '1') || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if (!isAlreadyInstalled && installBtn) {
+    // show the install button immediately from the start (user requested)
+    installBtn.classList.add('show');
+  } else if (isAlreadyInstalled && installBtn) {
     installBtn.classList.remove('show');
   }
 })();
