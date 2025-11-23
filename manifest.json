@@ -12,13 +12,13 @@
   "categories": ["books", "education", "religion"],
   "icons": [
     {
-      "src": "quran2.png",
-      "sizes": "192x192",
+      "src": "quran.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "quran1.png",
+      "src": "quran.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

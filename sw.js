@@ -2,12 +2,11 @@
 const CACHE_NAME = 'quran-app-v2';
 // موارد أساسية ونقطة بداية - نقوم بتحميل الصور ديناميكياً
 const coreResources = [
-  '/',
-  '/index.html',
-  '/adea.html',
-  '/ar.json',
-  '/info.html',
-  '/quarters.json',
+  'index.html',
+  'adea.html',
+  'ar.json',
+  'info.html',
+  'quarters.json',
   // موارد خارجية قد تعيد استجابة opaque (no-cors)
   'https://unpkg.com/webkul-micron@1.1.6/dist/css/micron.min.css',
   'https://unpkg.com/webkul-micron@1.1.6/dist/script/micron.min.js',
@@ -72,7 +71,7 @@ self.addEventListener('install', event => {
     // ثم نحاول تحميل صور المصحف تدريجياً (لا نريد أن يفشل التثبيت إن تعذر تنزيل صورة واحدة)
     const imageUrls = [];
     for (let i = 1; i <= IMAGE_COUNT; i++) {
-      imageUrls.push(`/quran/${i}.png`);
+      imageUrls.push(`quran/${i}.png`);
     }
     // تحميل صور (يمكن أن يكون ثقيلًا؛ يتم باستخدام allSettled)
     await cacheResourcesSafely(CACHE_NAME, imageUrls);
@@ -81,17 +80,17 @@ self.addEventListener('install', event => {
     try {
       const cache = await caches.open(CACHE_NAME);
       // ar.json موجود ضمن coreResources، لكن نتأكد ونحاول جلبه مباشرة
-      let arResp = await cache.match('/ar.json') || await cache.match('ar.json');
+      let arResp = await cache.match('ar.json');
       if (!arResp) {
         try {
-          arResp = await fetch('/ar.json');
+          arResp = await fetch('ar.json');
         } catch (e) { arResp = null; }
       }
       if (arResp) {
         try {
           const json = await arResp.clone().json();
           await saveToIndexedDB(json).catch(() => {});
-          try { await cache.put('/ar.json', new Response(JSON.stringify(json), { headers: { 'Content-Type': 'application/json' } })); } catch (e) {}
+          try { await cache.put('ar.json', new Response(JSON.stringify(json), { headers: { 'Content-Type': 'application/json' } })); } catch (e) {}
         } catch (e) {
           // ignore parse errors
         }
@@ -158,7 +157,7 @@ self.addEventListener('fetch', event => {
           const cachedResp = await cache.match(req);
           if (cachedResp) return cachedResp;
           // ثم حاول استخدام النسخة المحلية `ar.json` التي نخزّنها للعمل دون نت
-          const localResp = await cache.match('/ar.json') || await cache.match('ar.json');
+          const localResp = await cache.match('ar.json');
           if (localResp) return localResp;
         } catch (e) {
           // تجاهل أخطاء الكاش
@@ -175,7 +174,7 @@ self.addEventListener('fetch', event => {
   }
 
   // موارد الصور: cache-first ثم شبكة ثم placeholder
-  if (url.pathname.startsWith('/quran/') || url.pathname.endsWith('.png') || url.pathname.endsWith('.jpg') || url.pathname.endsWith('.jpeg')) {
+  if (req.url.includes('/quran/') || req.url.endsWith('.png') || req.url.endsWith('.jpg') || req.url.endsWith('.jpeg')) {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_NAME);
       const cached = await cache.match(req);

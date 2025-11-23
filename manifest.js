@@ -14,7 +14,7 @@ const manifest = {
   description: "قارئ للقرآن الكريم يعمل دون اتصال مع أدوات تنقل مريحة ودعم التثبيت كتطبيق ويب.",
   categories: ["books", "education", "religion"],
   icons: [
-    { src: "quran2.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+    { src: "quran.png", sizes: "512x512", type: "image/png", purpose: "any maskable" },
     { src: "quran1.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
   ],
   shortcuts: [
