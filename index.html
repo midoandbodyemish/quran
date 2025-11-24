@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="quran.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>تطبيق القرآن الكريم</title>
   <link href="https://unpkg.com/webkul-micron@1.1.6/dist/css/micron.min.css" rel="stylesheet">
@@ -802,21 +801,6 @@
     });
   }
 
-  function getFromIndexedDB() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open('QuranDB', 1);
-      request.onsuccess = event => {
-        const db = event.target.result;
-        const transaction = db.transaction(['quran'], 'readonly');
-        const store = transaction.objectStore('quran');
-        const getRequest = store.get('quranData');
-        getRequest.onsuccess = () => resolve(getRequest.result ? getRequest.result.data : null);
-        getRequest.onerror = () => reject(getRequest.error);
-      };
-      request.onerror = () => reject(request.error);
-    });
-  }
-
   // طلب التخزين الدائم إن أمكن لتحسين بقاء الكاش/IndexedDB
   async function requestPersistentStorage() {
     try {
@@ -1016,6 +1000,7 @@
       localStorage.setItem('lastPage', currentPage);
       console.log(`Updated to page: ${currentPage}`); // لتصحيح الأخطاء
     }
+  }
 
   // ---------- أرباع/أحزاب: تحميل بيانات من quarters.json وإظهار إشعار ----------
   let quartersData = null;
@@ -1210,19 +1195,23 @@
     return navigator.onLine;
   }
 
-  async function showIndex() {
+  function showIndex() {
     const indexList = document.getElementById('index-list');
     const indexCount = document.getElementById('index-count');
     if (indexList && indexCount) {
       indexList.innerHTML = '';
       indexCount.innerHTML = 'جارٍ التحميل...';
 
-      // حاول استخدام البيانات المخبأة أولاً
+      if (!isOnline()) {
+        indexList.innerHTML = '<div class="index-item"><p>يتطلب فهرس السور اتصالاً بالإنترنت.</p></div>';
+        indexCount.innerHTML = '';
+        return;
+      }
+
       const cachedSurahs = localStorage.getItem('surahsData');
       if (cachedSurahs) {
         const surahs = JSON.parse(cachedSurahs);
         indexCount.innerHTML = `عدد السور: ${surahs.length}`;
-        indexList.innerHTML = '';
         surahs.forEach(surah => {
           const firstAyah = surah.ayahs[0];
           const surahElement = document.createElement('div');
@@ -1240,14 +1229,15 @@
         return;
       }
 
-      // حاول جلبها من IndexedDB إذا كانت موجودة
-      try {
-        const idbData = await getFromIndexedDB();
-        if (idbData && idbData.data && idbData.data.surahs) {
-          const surahs = idbData.data.surahs;
+      fetch('ar.json')
+        .then(res => {
+          if (!res.ok) throw new Error("فشل جلب بيانات السور");
+          return res.json();
+        })
+        .then(data => {
+          const surahs = data.data.surahs;
           localStorage.setItem('surahsData', JSON.stringify(surahs));
           indexCount.innerHTML = `عدد السور: ${surahs.length}`;
-          indexList.innerHTML = '';
           surahs.forEach(surah => {
             const firstAyah = surah.ayahs[0];
             const surahElement = document.createElement('div');
@@ -1262,97 +1252,49 @@
             };
             indexList.appendChild(surahElement);
           });
-          return;
-        }
-      } catch (e) {
-        console.warn('getFromIndexedDB failed', e);
-      }
-
-      // إذا لم تكن هناك بيانات محلية فحاول جلبها من ar.json إن كان هناك اتصال
-      if (!isOnline()) {
-        indexList.innerHTML = '<div class="index-item"><p>يتطلب فهرس السور اتصالاً بالإنترنت أو تحميلًا مسبقًا للبيانات.</p></div>';
-        indexCount.innerHTML = '';
-        return;
-      }
-
-      try {
-        const res = await fetch('ar.json');
-        if (!res.ok) throw new Error('فشل جلب بيانات السور');
-        const data = await res.json();
-        const surahs = data.data.surahs;
-        localStorage.setItem('surahsData', JSON.stringify(surahs));
-        // also save to IndexedDB for longer-term offline
-        saveToIndexedDB(data).catch(() => {});
-        indexCount.innerHTML = `عدد السور: ${surahs.length}`;
-        indexList.innerHTML = '';
-        surahs.forEach(surah => {
-          const firstAyah = surah.ayahs[0];
-          const surahElement = document.createElement('div');
-          surahElement.className = 'index-item';
-          surahElement.innerHTML = `
-            <div class="index-surah-name">${surah.name}</div>
-          `;
-          surahElement.onclick = () => {
-            currentPage = firstAyah.page;
-            updatePage();
-            closePanel('index', 'close-index');
-          };
-          indexList.appendChild(surahElement);
+        })
+        .catch(error => {
+          console.error('خطأ في جلب بيانات السور:', error);
+          indexList.innerHTML = '<div class="index-item"><p>حدث خطأ أثناء تحميل الفهرس. حاول لاحقًا.</p></div>';
+          indexCount.innerHTML = '';
         });
-      } catch (error) {
-        console.error('خطأ في جلب بيانات السور:', error);
-        indexList.innerHTML = '<div class="index-item"><p>حدث خطأ أثناء تحميل الفهرس. حاول لاحقًا.</p></div>';
-        indexCount.innerHTML = '';
-      }
     }
   }
 
-  async function showPartsIndex() {
+  function showPartsIndex() {
     const partsIndexList = document.getElementById('parts-index-list');
     const partsIndexCount = document.getElementById('parts-index-count');
     if (partsIndexList && partsIndexCount) {
       partsIndexList.innerHTML = '';
       partsIndexCount.innerHTML = 'جارٍ التحميل...';
 
-      // Try localStorage first
-      const cachedQuranData = localStorage.getItem('quranData');
-      if (cachedQuranData) {
-        try {
-          const data = JSON.parse(cachedQuranData);
-          displayPartsIndex(data.data.surahs);
-          return;
-        } catch (e) { console.warn('cached quranData parse failed', e); }
-      }
-
-      // Then try IndexedDB
-      try {
-        const idbData = await getFromIndexedDB();
-        if (idbData && idbData.data && idbData.data.surahs) {
-          localStorage.setItem('quranData', JSON.stringify(idbData));
-          displayPartsIndex(idbData.data.surahs);
-          return;
-        }
-      } catch (e) { console.warn('getFromIndexedDB failed', e); }
-
-      // If no local data, require network
       if (!isOnline()) {
-        partsIndexList.innerHTML = '<div class="parts-index-item"><p>يتطلب فهرس الأجزاء اتصالاً بالإنترنت أو تحميلًا مسبقًا للبيانات.</p></div>';
+        partsIndexList.innerHTML = '<div class="parts-index-item"><p>يتطلب فهرس الأجزاء اتصالاً بالإنترنت.</p></div>';
         partsIndexCount.innerHTML = '';
         return;
       }
 
-      try {
-        const res = await fetch('ar.json');
-        if (!res.ok) throw new Error('فشل جلب بيانات الأجزاء');
-        const data = await res.json();
-        localStorage.setItem('quranData', JSON.stringify(data));
-        saveToIndexedDB(data).catch(() => {});
+      const cachedQuranData = localStorage.getItem('quranData');
+      if (cachedQuranData) {
+        const data = JSON.parse(cachedQuranData);
         displayPartsIndex(data.data.surahs);
-      } catch (error) {
-        console.error('خطأ في جلب بيانات الأجزاء:', error);
-        partsIndexList.innerHTML = '<div class="parts-index-item"><p>حدث خطأ أثناء تحميل الفهرس. حاول لاحقًا.</p></div>';
-        partsIndexCount.innerHTML = '';
+        return;
       }
+
+      fetch('ar.json')
+        .then(res => {
+          if (!res.ok) throw new Error("فشل جلب بيانات الأجزاء");
+          return res.json();
+        })
+        .then(data => {
+          localStorage.setItem('quranData', JSON.stringify(data));
+          displayPartsIndex(data.data.surahs);
+        })
+        .catch(error => {
+          console.error('خطأ في جلب بيانات الأجزاء:', error);
+          partsIndexList.innerHTML = '<div class="parts-index-item"><p>حدث خطأ أثناء تحميل الفهرس. حاول لاحقًا.</p></div>';
+          partsIndexCount.innerHTML = '';
+        });
     }
 
     function displayPartsIndex(surahs) {
@@ -1539,72 +1481,79 @@
     }
   }
 
-  async function searchAyah() {
+  function searchAyah() {
     const searchTermRaw = document.getElementById('search-term')?.value;
     if (!searchTermRaw) return;
 
-    const resultsContainer = document.getElementById('search-results');
-    const resultsCount = document.getElementById('results-count');
-    if (!(resultsContainer && resultsCount)) return;
-
-    resultsContainer.innerHTML = '';
-    resultsCount.innerHTML = '';
-
-    const searchTerm = removeTashkeel(searchTermRaw).trim();
-    if (searchTerm.length < 2) return;
-
-    // Try to get data from localStorage / IndexedDB first
-    let data = null;
-    try {
-      const cached = localStorage.getItem('quranData');
-      if (cached) data = JSON.parse(cached);
-    } catch (e) { console.warn('parse cached quranData failed', e); }
-
-    if (!data) {
-      try {
-        const idb = await getFromIndexedDB();
-        if (idb && idb.data) data = idb;
-      } catch (e) { console.warn('getFromIndexedDB failed', e); }
-    }
-
-    if (!data) {
-      if (!isOnline()) {
-        resultsContainer.innerHTML = '<div class="search-result"><p class="ayah-text">يتطلب البحث اتصالاً بالإنترنت أو تحميلًا مسبقًا للبيانات.</p></div>';
+    if (!isOnline()) {
+      const resultsContainer = document.getElementById('search-results');
+      const resultsCount = document.getElementById('results-count');
+      if (resultsContainer && resultsCount) {
+        resultsContainer.innerHTML = '<div class="search-result"><p class="ayah-text">يتطلب البحث اتصالاً بالإنترنت.</p></div>';
         resultsCount.innerHTML = '';
-        return;
       }
-      try {
-        const res = await fetch('ar.json');
-        if (!res.ok) throw new Error('فشل جلب البيانات');
-        data = await res.json();
-        // cache for future offline use
-        localStorage.setItem('quranData', JSON.stringify(data));
-        saveToIndexedDB(data).catch(() => {});
-      } catch (e) {
-        console.error('Search fetch failed', e);
-        resultsContainer.innerHTML = '<div class="search-result"><p class="ayah-text">فشل جلب بيانات البحث.</p></div>';
-        resultsCount.innerHTML = '';
-        return;
-      }
-    }
-
-    const ayahs = data.data.surahs.flatMap(surah =>
-      surah.ayahs.map(ayah => ({ text: ayah.text, surah: surah.name, page: ayah.page }))
-    );
-    const lowered = removeTashkeel(searchTerm);
-    const matches = ayahs.filter(a => removeTashkeel(a.text).includes(lowered));
-    resultsCount.innerHTML = `${matches.length} نتيجة`;
-    if (matches.length === 0) {
-      resultsContainer.innerHTML = '<div class="search-result"><p class="ayah-text">لم يتم العثور على نتائج.</p></div>';
       return;
     }
-    matches.slice(0, 200).forEach(m => {
-      const el = document.createElement('div');
-      el.className = 'search-result';
-      el.innerHTML = `<div class="ayah-text">${m.text}</div><div style="font-size:12px;color:#666">${m.surah} — صفحة ${m.page}</div>`;
-      el.onclick = () => { currentPage = m.page; updatePage(); };
-      resultsContainer.appendChild(el);
-    });
+
+    const searchTerm = removeTashkeel(searchTermRaw).trim();
+    const resultsContainer = document.getElementById('search-results');
+    const resultsCount = document.getElementById('results-count');
+    if (resultsContainer && resultsCount) {
+      resultsContainer.innerHTML = '';
+      resultsCount.innerHTML = '';
+
+      if (searchTerm.length < 2) {
+        console.log("النص المبحوث أقل من حرفين");
+        return;
+      }
+
+      fetch('ar.json')
+        .then(res => {
+          if (!res.ok) throw new Error("فشل جلب البيانات من الـ API");
+          return res.json();
+        })
+        .then(data => {
+          const ayahs = data.data.surahs.flatMap(surah =>
+            surah.ayahs.map(ayah => ({
+              text: ayah.text,
+              page: ayah.page,
+              surahName: surah.name,
+              ayahNumber: ayah.numberInSurah
+            }))
+          );
+
+          const filtered = ayahs.filter(ayah =>
+            removeTashkeel(ayah.text).includes(searchTerm)
+          );
+
+          resultsCount.innerHTML = `تم العثور على ${filtered.length} نتيجة`;
+
+          if (filtered.length === 0) {
+            resultsContainer.innerHTML = '<div class="search-result"><p class="ayah-text">لم يتم العثور على نتائج</p></div>';
+            return;
+          }
+
+          filtered.forEach(result => {
+            const resultElement = document.createElement('div');
+            resultElement.className = 'search-result';
+            const highlightedText = highlightText(result.text, searchTermRaw);
+            resultElement.innerHTML = `
+              <div class="surah-name">${result.surahName} - الآية ${result.ayahNumber}</div>
+              <div class="ayah-text">${highlightedText}</div>
+            `;
+            resultElement.onclick = () => {
+              currentPage = result.page;
+              updatePage();
+              closePanel('searsh', 'close-search');
+            };
+            resultsContainer.appendChild(resultElement);
+          });
+        })
+        .catch(error => {
+          console.error('خطأ في جلب بيانات القرآن:', error);
+          resultsContainer.innerHTML = '<div class="search-result"><p class="ayah-text">حدث خطأ أثناء البحث. حاول لاحقًا.</p></div>';
+          resultsCount.innerHTML = '';
+        });
     }
   }
 
@@ -2263,56 +2212,36 @@
   let deferredPrompt = null;
   const installBtn = document.getElementById('install-btn');
 
-  function showInstallInstructions() {
-    // simple overlay with short instructions (auto-hide)
-    try {
-      const id = 'pwa-install-instructions';
-      if (document.getElementById(id)) return;
-      const box = document.createElement('div');
-      box.id = id;
-      box.style.cssText = 'position:fixed;left:50%;top:16%;transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:14px 18px;border-radius:8px;z-index:99999;max-width:90%;text-align:center;font-size:14px';
-      box.innerHTML = `لتثبيت التطبيق: اختر قائمة المتصفح → "تثبيت" أو "Install"، أو على أندرويد استخدم الخيار "Add to Home screen". على iOS استخدم زر المشاركة ثم "Add to Home Screen".`;
-      document.body.appendChild(box);
-      setTimeout(() => box.style.opacity = '0.0', 6000);
-      setTimeout(() => { try { box.remove(); } catch (e) {} }, 7000);
-    } catch (e) { console.warn('showInstallInstructions failed', e); }
-  }
-
   window.addEventListener('beforeinstallprompt', (e) => {
     // Prevent the mini-infobar from appearing on mobile
     e.preventDefault();
     deferredPrompt = e;
-    // Show the install button when prompt becomes available
+    // Show the install button
     if (installBtn) installBtn.classList.add('show');
   });
 
-  // If user clicks our install button, show the browser prompt or instructions
+  // If user clicks our install button, show the browser prompt
   if (installBtn) {
     installBtn.addEventListener('click', async () => {
-      // If we have the deferred prompt (Chrome/Edge), use it
-      if (deferredPrompt) {
-        installBtn.disabled = true;
-        try {
-          await deferredPrompt.prompt();
-          const choice = await deferredPrompt.userChoice;
-          if (choice && choice.outcome === 'accepted') {
-            localStorage.setItem('pwaInstalled', '1');
-          } else {
-            localStorage.setItem('pwaInstallDeclined', Date.now().toString());
-          }
-        } catch (err) {
-          console.warn('Install prompt failed', err);
+      if (!deferredPrompt) return;
+      installBtn.disabled = true;
+      try {
+        await deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        if (choice && choice.outcome === 'accepted') {
+          localStorage.setItem('pwaInstalled', '1');
+        } else {
+          localStorage.setItem('pwaInstallDeclined', Date.now().toString());
         }
-        deferredPrompt = null;
-        if (installBtn) {
-          installBtn.classList.remove('show');
-          installBtn.disabled = false;
-        }
-        return;
+      } catch (err) {
+        console.warn('Install prompt failed', err);
       }
-
-      // Otherwise show friendly instructions (iOS or when prompt not available)
-      showInstallInstructions();
+      // we no longer can use the prompt
+      deferredPrompt = null;
+      if (installBtn) {
+        installBtn.classList.remove('show');
+        installBtn.disabled = false;
+      }
     });
   }
 
@@ -2324,11 +2253,7 @@
   });
 
   // If already installed, hide the button
-  const isAlreadyInstalled = (localStorage.getItem('pwaInstalled') === '1') || window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  if (!isAlreadyInstalled && installBtn) {
-    // show the install button immediately from the start (user requested)
-    installBtn.classList.add('show');
-  } else if (isAlreadyInstalled && installBtn) {
+  if (localStorage.getItem('pwaInstalled') === '1' && installBtn) {
     installBtn.classList.remove('show');
   }
 })();

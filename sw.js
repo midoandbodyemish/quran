@@ -2,6 +2,7 @@
 const CACHE_NAME = 'quran-app-v2';
 // موارد أساسية ونقطة بداية - نقوم بتحميل الصور ديناميكياً
 const coreResources = [
+  './',
   'index.html',
   'adea.html',
   'ar.json',
@@ -77,27 +78,27 @@ self.addEventListener('install', event => {
     await cacheResourcesSafely(CACHE_NAME, imageUrls);
 
     // أثناء التثبيت: حاول الحصول على النسخة المحلية `ar.json` وحفظها في IndexedDB
-    try {
-      const cache = await caches.open(CACHE_NAME);
-      // ar.json موجود ضمن coreResources، لكن نتأكد ونحاول جلبه مباشرة
-      let arResp = await cache.match('ar.json');
-      if (!arResp) {
-        try {
-          arResp = await fetch('ar.json');
-        } catch (e) { arResp = null; }
-      }
-      if (arResp) {
-        try {
-          const json = await arResp.clone().json();
-          await saveToIndexedDB(json).catch(() => {});
-          try { await cache.put('ar.json', new Response(JSON.stringify(json), { headers: { 'Content-Type': 'application/json' } })); } catch (e) {}
-        } catch (e) {
-          // ignore parse errors
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        // ar.json موجود ضمن coreResources (نسبي)، نحاول العثور عليه في الكاش أو الشبكة
+        let arResp = await cache.match('ar.json');
+        if (!arResp) {
+          try {
+            arResp = await fetch('ar.json');
+          } catch (e) { arResp = null; }
         }
+        if (arResp) {
+          try {
+            const json = await arResp.clone().json();
+            await saveToIndexedDB(json).catch(() => {});
+            try { await cache.put('ar.json', new Response(JSON.stringify(json), { headers: { 'Content-Type': 'application/json' } })); } catch (e) {}
+          } catch (e) {
+            // ignore parse errors
+          }
+        }
+      } catch (e) {
+        // ignore
       }
-    } catch (e) {
-      // ignore
-    }
 
     // اقتراح: بعد التنزيل، نقوم بقص الكاش إن كان كبيرًا
     await trimCache(CACHE_NAME, MAX_IMAGE_CACHE_ITEMS + coreResources.length);
@@ -131,37 +132,51 @@ self.addEventListener('fetch', event => {
 
   const url = new URL(req.url);
 
-  // تعامل خاص مع API - network-first ثم IndexedDB fallback
-  if (req.url.includes('api.alquran.cloud')) {
+  // تعامل خاص مع طلبات الـ API الخارجية أو محلية ar.json
+  if (req.url.includes('api.alquran.cloud') || req.url.endsWith('/ar.json') || req.url.includes('/ar.json')) {
     event.respondWith((async () => {
+      // إذا كان طلبًا لصيغة ar.json (محلي) فنسعى للكاش أولاً
+      if (req.url.endsWith('/ar.json') || req.url.endsWith('ar.json') || req.url.includes('/ar.json')) {
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          const cached = await cache.match('ar.json') || await cache.match(new Request('ar.json'));
+          if (cached) return cached;
+          const net = await fetch('ar.json');
+          if (net && (net.ok || net.type === 'opaque')) {
+            cache.put('ar.json', net.clone()).catch(() => {});
+            try { const json = await net.clone().json(); saveToIndexedDB(json).catch(() => {}); } catch (e) {}
+            return net;
+          }
+        } catch (e) {}
+        // أخيراً حاول IndexedDB
+        try {
+          const data = await getFromIndexedDB();
+          return new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } });
+        } catch (e) {
+          return new Response(JSON.stringify({ error: 'offline' }), { headers: { 'Content-Type': 'application/json' }, status: 503 });
+        }
+      }
+
+      // للـ API الخارجية: network-first مع مهلة، ثم fallback إلى الكاش ثم ar.json ثم IndexedDB
       try {
-        // نُنفّذ fetch مع مهلة قصيرة
         const networkResponse = await Promise.race([
           fetch(req),
           new Promise((_, reject) => setTimeout(() => reject(new Error('network-timeout')), 8000))
         ]);
-        // نحاول قراءة JSON ونحفظه في IndexedDB
         try {
           const clone = networkResponse.clone();
           const data = await clone.json();
           saveToIndexedDB(data).catch(() => {});
-        } catch (e) {
-          // لا نفشل إن كان الرد opaque أو لم يكن JSON
-        }
+        } catch (e) {}
         return networkResponse;
       } catch (err) {
-        // فشل الشبكة → حاول أولاً الحصول على نسخة من الكاش، ثم من IndexedDB
         try {
           const cache = await caches.open(CACHE_NAME);
-          // حاول أولاً العثور على نسخة مخزنة من نفس طلب الـ API
           const cachedResp = await cache.match(req);
           if (cachedResp) return cachedResp;
-          // ثم حاول استخدام النسخة المحلية `ar.json` التي نخزّنها للعمل دون نت
-          const localResp = await cache.match('ar.json');
+          const localResp = await cache.match('ar.json') || await cache.match(new Request('ar.json'));
           if (localResp) return localResp;
-        } catch (e) {
-          // تجاهل أخطاء الكاش
-        }
+        } catch (e) {}
         try {
           const data = await getFromIndexedDB();
           return new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } });
@@ -174,7 +189,7 @@ self.addEventListener('fetch', event => {
   }
 
   // موارد الصور: cache-first ثم شبكة ثم placeholder
-  if (req.url.includes('/quran/') || req.url.endsWith('.png') || req.url.endsWith('.jpg') || req.url.endsWith('.jpeg')) {
+  if (url.pathname.startsWith('/quran/') || url.pathname.endsWith('.png') || url.pathname.endsWith('.jpg') || url.pathname.endsWith('.jpeg')) {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE_NAME);
       const cached = await cache.match(req);
